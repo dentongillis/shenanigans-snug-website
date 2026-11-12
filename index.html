@@ -282,7 +282,7 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
       <a href="#home">Home</a><a href="#menu">Menu</a><a href="#events">Events</a><a href="#reservations">Reservations</a><a href="#parties">Private parties</a><a href="#about">Our story</a><a href="#gallery">Gallery</a><a href="#contact">Visit</a>
     </nav>
     <div class="actions">
-      <a class="btn btn-amber btn-sm" href="#order">Order online <span class="cart-count" id="cartCount">0</span></a>
+      <a class="btn btn-amber btn-sm" href="#order">Order online <span class="cart-count" id="cartCount" hidden>0</span></a>
       <button id="burger" type="button" aria-label="Open menu" aria-expanded="false">&#9776;</button>
     </div>
   </div>
@@ -355,6 +355,12 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
 
 <!-- ================= ORDER ================= -->
 <div class="page" data-page="order">
+  <section class="phead" style="background-image:url(img/club.jpg)"><div class="wrap"><h1>Online ordering is coming soon</h1><p>We're putting the finishing touches on pickup orders. Until then, come in and we'll look after you at the bar.</p>
+    <div class="cta"><a class="btn btn-amber" href="#menu">See the menu</a><a class="btn btn-ghost" href="#reservations">Book a table</a><a class="btn btn-ghost" href="#contact">Hours and location</a></div></div></section>
+</div>
+
+<!-- Hidden for now: the working order page. Reach it at #order-preview. -->
+<div class="page" data-page="order-preview">
   <section class="phead" style="background-image:url(img/club.jpg)"><div class="wrap"><h1>Order online</h1><p>Pick your plates, choose a pickup time, and we'll have it ready at the bar.</p></div></section>
   <section class="band paper"><div class="wrap order-layout">
     <div>
@@ -539,12 +545,12 @@ const PHOTO = {"Pub's Big Pretzel":'pretzel',"Shrimp Buckets":'bucket',"Irish Pu
 MENU.forEach((it,i)=>{it.id=i; it.img=PHOTO[it.name]||'';});
 
 /* ---------- Router ---------- */
-const PAGES = ['home','menu','order','events','reservations','parties','about','gallery','contact','staff'];
+const PAGES = ['home','menu','order','order-preview','events','reservations','parties','about','gallery','contact','staff'];
 function route(){
   const p = PAGES.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
   $$('.page').forEach(el=>el.classList.toggle('on', el.dataset.page===p));
   $$('#nav a').forEach(a=>a.classList.toggle('cur', a.getAttribute('href')==='#'+p));
-  document.body.classList.toggle('ordering', p==='order');
+  document.body.classList.toggle('ordering', p==='order-preview');
   $('#nav').classList.remove('open'); $('#burger').setAttribute('aria-expanded','false');
   window.scrollTo(0,0);
 }
@@ -602,7 +608,7 @@ renderMenu('menu'); renderMenu('order');
 /* ---------- Favorites ---------- */
 const FAVS = ["Pub's Big Pretzel","Irish Pub Nachos","Shrimp Buckets","Steamed Clams or Mussels","Grilled Skewers","Irish Club"];
 $('#favs').innerHTML = FAVS.map(n=>{const it=MENU.find(i=>i.name===n&&i.menu==='Main Menu');
-  return `<div class="fav"><img src="img/${it.img}.jpg" alt="${esc(it.name)}"><div class="t"><div class="n"><span>${esc(it.name)}</span><span>${it.opts.length>1?'from ':''}${money(it.opts[0].price)}</span></div><p>${esc(it.desc)}</p><button class="btn btn-ink btn-sm" type="button" data-fav="${it.id}">Add to order</button></div></div>`;}).join('');
+  return `<div class="fav"><img src="img/${it.img}.jpg" alt="${esc(it.name)}"><div class="t"><div class="n"><span>${esc(it.name)}</span><span>${it.opts.length>1?'from ':''}${money(it.opts[0].price)}</span></div><p>${esc(it.desc)}</p><a class="btn btn-ink btn-sm" href="#menu">See it on the menu</a></div></div>`;}).join('');
 
 /* ---------- Cart ---------- */
 const cart = []; let placed = null;
