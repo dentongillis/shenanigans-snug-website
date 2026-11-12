@@ -125,7 +125,17 @@ section.band{padding-block:72px}
 .tabs{display:flex;flex-wrap:wrap;gap:8px}
 .tab{padding:10px 18px;border-radius:999px;border:2px solid var(--ink);background:transparent;color:var(--ink);font-weight:700;cursor:pointer}
 .tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
-.chips{display:flex;flex-wrap:wrap;gap:8px;padding:14px 0 10px;position:sticky;top:74px;background:var(--paper);z-index:5}
+.chipbar{position:sticky;top:74px;z-index:5;background:var(--paper);display:flex;align-items:center;gap:8px;padding:12px 0 10px;border-bottom:1px solid rgba(22,38,28,.14)}
+.chipbar:has(.chips:empty){display:none}
+.chips{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;-webkit-overflow-scrolling:touch;padding:2px}
+.chips::-webkit-scrollbar{display:none}
+.chipbar.more-r .chips{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent)}
+.chipbar.more-l .chips{-webkit-mask-image:linear-gradient(270deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(270deg,#000 calc(100% - 48px),transparent)}
+.chipbar.more-l.more-r .chips{-webkit-mask-image:linear-gradient(90deg,transparent,#000 48px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,transparent,#000 48px,#000 calc(100% - 48px),transparent)}
+.chipnav{flex:none;width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);background:var(--ink);color:var(--paper);font-size:1.25rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0 0 3px}
+.chipnav:hover{background:#0d7a3d;border-color:#0d7a3d}
+.chipnav[disabled]{visibility:hidden}
+.chips button[aria-current="true"],.chips button[aria-current="true"]:hover{background:var(--ink);color:var(--paper)}
 .chips button{white-space:nowrap;border:0;font-weight:600;font-size:.92rem;padding:7px 13px;border-radius:999px;background:rgba(22,38,28,.08);color:var(--ink);cursor:pointer}
 .chips button:hover{background:rgba(22,38,28,.2)}
 .cat{margin-top:40px;scroll-margin-top:140px}
@@ -255,8 +265,8 @@ input,select,textarea{min-width:0}
   .top .logo img{height:46px}
   .card{padding:20px}
   .cat h3{font-size:1.6rem}
-  .chips{top:63px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-right:-20px;padding-right:20px}
-  .chips::-webkit-scrollbar{display:none}
+  .chipbar{top:63px}
+  .chipnav{display:none}
   .item .ph{width:72px;height:72px}
   .cal-top h3{font-size:1.35rem;min-width:0;flex:1;text-align:center}
   .day{padding:3px 4px;font-size:.8rem;border-radius:8px}
@@ -271,7 +281,6 @@ input,select,textarea{min-width:0}
   .fav{flex:0 0 78%;scroll-snap-align:center}
   .gal{columns:2;column-gap:10px}
   .gal button{margin-bottom:10px;border-radius:10px}
-  .chips{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
   footer a{padding:9px 0}
   .add{padding:9px 16px;font-size:.9rem}
   .btn-sm{padding:11px 18px}
@@ -366,7 +375,7 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
   <section class="phead" style="background-image:url(img/nachos.jpg)"><div class="wrap"><h1>The menu</h1><p>Irish favorites and American pub classics, made in house.</p><div class="cta"><a class="btn btn-amber" href="#order">Order online for pickup</a></div></div></section>
   <section class="band paper"><div class="wrap">
     <div class="tabs" role="tablist" data-tabs="menu"></div>
-    <div class="chips" data-chips="menu"></div>
+    <div class="chipbar"><button class="chipnav" type="button" data-chipnav="-1" aria-label="Show earlier sections">&#8249;</button><div class="chips" data-chips="menu"></div><button class="chipnav" type="button" data-chipnav="1" aria-label="Show more sections">&#8250;</button></div>
     <div data-body="menu"></div>
   </div></section>
 </div>
@@ -383,7 +392,7 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
   <section class="band paper"><div class="wrap order-layout">
     <div>
       <div class="tabs" role="tablist" data-tabs="order"></div>
-      <div class="chips" data-chips="order"></div>
+      <div class="chipbar"><button class="chipnav" type="button" data-chipnav="-1" aria-label="Show earlier sections">&#8249;</button><div class="chips" data-chips="order"></div><button class="chipnav" type="button" data-chipnav="1" aria-label="Show more sections">&#8250;</button></div>
       <div data-body="order"></div>
     </div>
     <aside class="cartbox" id="cartBox" aria-label="Your order"></aside>
@@ -571,6 +580,7 @@ function route(){
   document.body.classList.toggle('ordering', p==='order-preview');
   $('#nav').classList.remove('open'); $('#burger').setAttribute('aria-expanded','false');
   window.scrollTo(0,0);
+  if(typeof chipState==='function') chipState();
 }
 window.addEventListener('hashchange', route);
 $('#burger').onclick=()=>{const o=$('#nav').classList.toggle('open'); $('#burger').setAttribute('aria-expanded',o);};
@@ -604,6 +614,7 @@ function renderMenu(which){
     const list = items.filter(i=>i.cat===c), note = list[0].note;
     return `<div class="cat" id="${which}-${slug(c)}"><h3>${esc(c)}</h3>${note?`<p class="note">${esc(note)}</p>`:''}<div class="items${ordering?' one':''}">${list.map(it=>itemHTML(it,ordering)).join('')}</div></div>`;
   }).join('');
+  $(`[data-chips="${which}"]`).scrollLeft=0; if(typeof chipState==='function') chipState();
 }
 function itemHTML(it, ordering){
   const out = soldOut.has(it.id), single = it.opts.length===1 && !it.opts[0].label;
@@ -619,8 +630,19 @@ document.addEventListener('click',e=>{
   const t=e.target.closest('[data-tab]');
   if(t){const w=t.parentElement.dataset.tabs; active[w]=t.dataset.tab; renderMenu(w); return;}
   const j=e.target.closest('[data-jump]');
-  if(j){document.getElementById(j.dataset.jump).scrollIntoView({behavior:'smooth',block:'start'});}
+  if(j){document.getElementById(j.dataset.jump).scrollIntoView({behavior:'smooth',block:'start'});
+    j.parentElement.querySelectorAll('button').forEach(b=>b.setAttribute('aria-current', b===j));
+    j.scrollIntoView({behavior:'smooth',inline:'center',block:'nearest'}); return;}
+  const cn=e.target.closest('[data-chipnav]');
+  if(cn){const c=cn.parentElement.querySelector('.chips'); c.scrollBy({left:+cn.dataset.chipnav*c.clientWidth*0.7,behavior:'smooth'});}
 });
+function chipState(){
+  $$('.chipbar').forEach(bar=>{const c=bar.querySelector('.chips'), l=c.scrollLeft>4, r=c.scrollLeft+c.clientWidth<c.scrollWidth-4;
+    bar.classList.toggle('more-l',l); bar.classList.toggle('more-r',r);
+    bar.querySelector('[data-chipnav="-1"]').disabled=!l; bar.querySelector('[data-chipnav="1"]').disabled=!r;});
+}
+$$('.chips').forEach(c=>c.addEventListener('scroll',chipState,{passive:true}));
+window.addEventListener('resize',chipState);
 renderMenu('menu'); renderMenu('order');
 
 /* ---------- Favorites ---------- */
@@ -745,7 +767,14 @@ const say = t => {const b=$('#admOk'); b.hidden=false; b.textContent=t;};
 $('#aSave').onclick=()=>{const a=$('#announce'); a.textContent=$('#aText').value; a.hidden=!$('#aText').value.trim(); say('Banner updated.');};
 $('#aHide').onclick=()=>{$('#announce').hidden=true; say('Banner hidden.');};
 $('#soSel').innerHTML = MENU.filter(i=>i.menu==='Main Menu').map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('');
-$('#soBtn').onclick=()=>{const id=+$('#soSel').value; soldOut.has(id)?soldOut.delete(id):soldOut.add(id); renderMenu('menu'); renderMenu('order'); say(`${MENU[id].name} is now ${soldOut.has(id)?'marked sold out':'back on the menu'}.`);};
+$('#soBtn').onclick=()=>{const id=+$('#soSel').value; soldOut.has(id)?soldOut.delete(id):soldOut.add(id); function chipState(){
+  $$('.chipbar').forEach(bar=>{const c=bar.querySelector('.chips'), l=c.scrollLeft>4, r=c.scrollLeft+c.clientWidth<c.scrollWidth-4;
+    bar.classList.toggle('more-l',l); bar.classList.toggle('more-r',r);
+    bar.querySelector('[data-chipnav="-1"]').disabled=!l; bar.querySelector('[data-chipnav="1"]').disabled=!r;});
+}
+$$('.chips').forEach(c=>c.addEventListener('scroll',chipState,{passive:true}));
+window.addEventListener('resize',chipState);
+renderMenu('menu'); renderMenu('order'); say(`${MENU[id].name} is now ${soldOut.has(id)?'marked sold out':'back on the menu'}.`);};
 $('#evForm').addEventListener('submit',e=>{e.preventDefault();
   const [y,m,d]=$('#eDate').value.split('-').map(Number), [hh,mm]=$('#eTime').value.split(':').map(Number), title=$('#eTitle').value;
   extra.push({y,m:m-1,d,title,time:`${((hh+11)%12)+1}:${String(mm).padStart(2,'0')} ${hh<12?'AM':'PM'}`,kind:$('#eKind').value});
