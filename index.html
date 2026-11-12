@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shenanigan's Snug</title>
+<meta name="description" content="Shenanigan's Snug is an Irish pub and grill in Cave Creek, Arizona. See the menu, order online for pickup, book a table and check the live music calendar.">
+<meta name="theme-color" content="#092116">
+<meta property="og:title" content="Shenanigan's Snug Irish Pub and Grill">
+<meta property="og:description" content="Cave Creek's snug little Irish pub. Menu, online ordering, reservations and live music.">
+<meta property="og:image" content="img/spread.jpg">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..900,100,1&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: a real multi-page restaurant site. Every page opens on a full-width photo band;
+   bottle-green rooms alternate with cream "menu paper"; food photography does the selling. */
+:root{
+  color-scheme: dark;
+  --bottle:#0f3323; --cellar:#092116; --shamrock:#23a05a; --paper:#f4ead3; --ink:#16261c;
+  --amber:#f0a93b; --cream:#f7f0df; --muted:#b9c9bd; --line:rgba(247,240,223,.18);
+  --display:"Fraunces","Cooper Black",Georgia,serif; --body:"Figtree","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bottle);color:var(--cream);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:inherit}
+h1,h2,h3{font-family:var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:800;line-height:1.03;margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(2.6rem,6vw,4.8rem);font-weight:900}
+h2{font-size:clamp(2rem,4.4vw,3.2rem)}
+h3{font-size:1.35rem;font-weight:700}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:4px}
+.wrap{width:min(1160px,100% - 40px);margin-inline:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:999px;border:2px solid transparent;font-weight:700;text-decoration:none;cursor:pointer;transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn-amber{background:var(--amber);color:#2a1a02}
+.btn-ghost{border-color:var(--cream);color:var(--cream);background:rgba(9,33,22,.35)}
+.btn-ink{background:var(--ink);color:var(--paper)}
+.btn-line{border-color:var(--ink);color:var(--ink);background:transparent}
+.btn-sm{padding:8px 16px;font-size:.92rem;white-space:nowrap}
+.page{display:none}.page.on{display:block}
+
+#announce{background:var(--amber);color:#2a1a02;text-align:center;font-weight:600;padding:8px 16px;font-size:.95rem}
+#announce[hidden]{display:none}
+
+header.top{position:sticky;top:0;z-index:30;background:rgba(9,33,22,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:16px;padding-block:8px}
+.top .logo img{height:58px;width:auto}
+.top nav{display:flex;gap:4px;margin-left:auto;font-weight:600;font-size:.96rem}
+.top nav a{text-decoration:none;padding:8px 11px;border-radius:999px}
+.top nav a:hover{background:rgba(255,255,255,.08)}
+.top nav a.cur{background:var(--cream);color:var(--ink)}
+.top .actions{display:flex;gap:8px}
+.cart-count{background:#2a1a02;color:var(--amber);border-radius:999px;min-width:22px;padding:0 6px;font-size:.8rem;line-height:22px;text-align:center}
+#burger{display:none;width:44px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:transparent;cursor:pointer;font-size:1.3rem}
+@media (max-width:1080px){
+  #burger{display:block}
+  .top nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--cellar);flex-direction:column;padding:12px 20px 18px;border-bottom:1px solid var(--line)}
+  .top nav.open{display:flex}
+  .top nav a{padding:12px 14px;font-size:1.05rem}
+  .top .actions{margin-left:auto}
+}
+
+/* photo bands */
+.hero{position:relative;background:#0b2418 center/cover no-repeat;min-height:640px;display:flex;align-items:center}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(95deg,rgba(9,33,22,.96) 0%,rgba(9,33,22,.82) 38%,rgba(9,33,22,.25) 70%,rgba(9,33,22,.1) 100%)}
+.hero .wrap{position:relative;padding-block:56px}
+.hero .biglogo{width:min(440px,86%);filter:drop-shadow(0 10px 24px rgba(0,0,0,.55));margin-bottom:26px}
+.hero h1{max-width:12ch}
+.hero p.lede{font-size:1.22rem;max-width:36ch;margin-top:18px;color:#e7e0cc}
+.cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.status{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-weight:600;font-size:.95rem;background:rgba(9,33,22,.6)}
+.dot{width:10px;height:10px;border-radius:50%;background:#e2574c}
+.dot.on{background:#4be08a;box-shadow:0 0 0 5px rgba(75,224,138,.18)}
+@media (max-width:760px){.hero{min-height:560px}.hero::before{background:linear-gradient(180deg,rgba(9,33,22,.9),rgba(9,33,22,.72))}}
+.phead{position:relative;background:#0b2418 center/cover no-repeat}
+.phead::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(9,33,22,.94),rgba(9,33,22,.55))}
+.phead .wrap{position:relative;padding-block:70px}
+.phead p{font-size:1.15rem;max-width:50ch;margin-top:14px;color:#e7e0cc}
+
+.hh{background:var(--paper);color:var(--ink)}
+.hh .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:12px 30px;padding-block:20px}
+.hh strong.t{font-family:var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;font-size:1.6rem;font-weight:800}
+.hh ul{display:flex;flex-wrap:wrap;gap:6px 22px;list-style:none;margin:0;padding:0;font-weight:600}
+.hh ul b{color:#0d7a3d}
+.pill{display:inline-block;padding:3px 12px;border-radius:999px;font-size:.85rem;font-weight:700;background:var(--ink);color:var(--paper)}
+.pill.live{background:#0d7a3d;color:#fff}
+
+section.band{padding-block:72px}
+.band.paper{background:var(--paper);color:var(--ink)}
+.band.cellar{background:var(--cellar)}
+.sec-head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:16px;margin-bottom:32px}
+.sec-head p{max-width:54ch;color:var(--muted);margin-top:10px}
+.paper .sec-head p{color:#4c5b50}
+
+/* favorites */
+.favs{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+@media (max-width:900px){.favs{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.favs{grid-template-columns:1fr}}
+.fav{background:#fffaf0;border-radius:18px;overflow:hidden;border:2px solid var(--ink);display:flex;flex-direction:column}
+.fav img{aspect-ratio:4/3;object-fit:cover;width:100%}
+.fav .t{padding:16px 18px 18px;display:flex;flex-direction:column;gap:6px;flex:1}
+.fav .n{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:1.12rem}
+.fav p{color:#45544a;font-size:.95rem;flex:1}
+.fav .btn{align-self:flex-start;margin-top:8px}
+
+/* split feature */
+.feature{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.feature.flip>:first-child{order:2}
+@media (max-width:860px){.feature{grid-template-columns:1fr;gap:28px}.feature.flip>:first-child{order:0}}
+.feature img{border-radius:20px;width:100%;aspect-ratio:5/4;object-fit:cover;box-shadow:0 24px 50px rgba(0,0,0,.35)}
+.feature p{color:var(--muted);margin-top:14px;max-width:56ch}
+.paper .feature p{color:#4c5b50}
+.feature .cta{margin-top:22px}
+
+.week{display:grid;gap:12px;margin-top:22px}
+.ev{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.04)}
+.ev .date{width:62px;text-align:center;background:var(--paper);color:var(--ink);border-radius:12px;padding:7px 0;font-weight:700;line-height:1.1}
+.ev .date b{display:block;font-family:var(--display);font-size:1.6rem;font-weight:800}
+.ev small{color:var(--muted);display:block}
+
+/* menu */
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{padding:10px 18px;border-radius:999px;border:2px solid var(--ink);background:transparent;color:var(--ink);font-weight:700;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 0 8px;position:sticky;top:74px;background:var(--paper);z-index:5}
+.chips button{white-space:nowrap;border:0;font-weight:600;font-size:.92rem;padding:7px 13px;border-radius:999px;background:rgba(22,38,28,.08);color:var(--ink);cursor:pointer}
+.chips button:hover{background:rgba(22,38,28,.2)}
+.cat{margin-top:40px;scroll-margin-top:140px}
+.cat h3{font-size:2rem;font-weight:800;border-bottom:3px double var(--ink);padding-bottom:8px}
+.cat .note{font-style:italic;color:#4c5b50;margin-top:8px}
+.items{display:grid;grid-template-columns:repeat(2,1fr);gap:24px 48px;margin-top:22px}
+.items.one{grid-template-columns:1fr}
+@media (max-width:760px){.items{grid-template-columns:1fr}}
+.item{display:flex;gap:14px}
+.item .ph{width:92px;height:92px;border-radius:14px;object-fit:cover;flex:none;border:2px solid var(--ink)}
+.item .tx{flex:1;min-width:0}
+.item .row{display:flex;align-items:baseline;gap:8px}
+.item .name{font-weight:700;font-size:1.08rem}
+.item .lead{flex:1;border-bottom:2px dotted rgba(22,38,28,.4);transform:translateY(-4px);min-width:16px}
+.item .price{font-weight:700;font-variant-numeric:tabular-nums}
+.item .desc{color:#45544a;font-size:.96rem;margin-top:3px;max-width:60ch}
+.item .addons{font-size:.88rem;color:#0d6a36;font-weight:600;margin-top:3px}
+.item .opt{display:flex;align-items:baseline;gap:8px;font-size:.96rem;margin-top:2px}
+.item .buy{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.add{border:1.5px solid var(--ink);background:var(--ink);color:var(--paper);border-radius:999px;padding:5px 14px;font-size:.86rem;font-weight:700;cursor:pointer}
+.add:hover{background:#0d7a3d;border-color:#0d7a3d}
+.item.out .name{text-decoration:line-through;opacity:.55}
+.soldout{font-size:.82rem;font-weight:700;color:#a3352c}
+
+/* order page */
+.order-layout{display:grid;grid-template-columns:1fr 380px;gap:36px;align-items:start}
+@media (max-width:980px){.order-layout{grid-template-columns:1fr}}
+.order-layout>div{min-width:0}
+.cartbox{position:sticky;top:92px;background:var(--cellar);color:var(--cream);border-radius:20px;padding:22px;border:2px solid var(--ink);max-height:calc(100vh - 110px);overflow:auto}
+@media (max-width:980px){.cartbox{position:static;max-height:none}}
+.cartbox h3{font-size:1.6rem;margin-bottom:8px}
+.line{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.line small{color:var(--muted)}
+.qty{display:inline-flex;align-items:center;gap:10px;margin-top:4px}
+.qty button{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);background:transparent;cursor:pointer}
+.tot{display:flex;justify-content:space-between;font-weight:700;font-size:1.15rem;margin:14px 0 4px;font-variant-numeric:tabular-nums}
+.hint{color:var(--muted);font-size:.9rem}
+.cartbox form label{color:var(--cream)}
+
+/* calendar */
+.cal-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.cal-top h3{font-size:1.7rem;min-width:9.5em}
+.navb{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:transparent;cursor:pointer;font-size:1.2rem}
+.cal-layout{display:grid;grid-template-columns:1.6fr 1fr;gap:28px;align-items:start}
+@media (max-width:860px){.cal-layout{grid-template-columns:1fr}}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.grid .dow{text-align:center;font-size:.8rem;font-weight:700;color:var(--muted);padding-bottom:4px}
+.day{aspect-ratio:1/1;min-height:44px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.03);padding:5px 6px;text-align:left;cursor:pointer;display:flex;flex-direction:column;justify-content:space-between;font-weight:600;font-size:.9rem}
+.day.blank{visibility:hidden}
+.day:hover{background:rgba(255,255,255,.09)}
+.day.today{border-color:var(--amber)}
+.day[aria-pressed="true"]{background:var(--paper);color:var(--ink)}
+.day .marks{display:flex;gap:3px;flex-wrap:wrap}
+.mk{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.k-music{background:var(--amber)}.k-trivia{background:#7cc7ff}.k-special{background:#ff7a8a}.k-sport{background:#b9f27c}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:.88rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.daybox{border:1px solid var(--line);border-radius:16px;padding:22px;background:rgba(255,255,255,.04)}
+.daybox ul{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:14px}
+.daybox li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start}
+.daybox li .mk{margin-top:8px}
+.daybox small{color:var(--muted);display:block}
+
+/* forms */
+.card{border-radius:20px;padding:28px;background:#fffaf0;border:2px solid var(--ink);color:var(--ink)}
+.card h3{font-size:1.8rem;font-weight:800}
+.card>p{color:#4c5b50;margin-top:8px}
+form{display:grid;gap:12px;margin-top:18px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:grid;gap:4px;font-weight:600;font-size:.9rem}
+input,select,textarea{padding:11px 12px;border-radius:10px;border:1.5px solid rgba(22,38,28,.35);background:#fff;color:var(--ink);width:100%}
+.ok{margin-top:16px;padding:14px 16px;border-radius:12px;background:#dff3e4;color:#0c4a26;font-weight:600}
+.ok small{display:block;font-weight:500;margin-top:4px}
+.cartbox .ok{background:#143f2a;color:var(--cream);border:1px solid var(--shamrock)}
+.ticks{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px}
+.ticks li{padding-left:30px;position:relative}
+.ticks li::before{content:"";position:absolute;left:2px;top:.45em;width:14px;height:8px;border-left:3px solid var(--shamrock);border-bottom:3px solid var(--shamrock);transform:rotate(-45deg)}
+
+.defn{border-left:4px solid var(--shamrock);padding:6px 0 6px 22px;margin-bottom:26px}
+.defn .w{font-family:var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;font-size:2.4rem;font-weight:800}
+.defn .ph2{color:var(--muted);font-style:italic}
+.defn p{color:var(--cream);font-size:1.15rem;margin-top:10px}
+
+.gal{columns:3 260px;column-gap:14px}
+.gal button{display:block;width:100%;margin:0 0 14px;padding:0;border:0;background:none;cursor:zoom-in;border-radius:14px;overflow:hidden}
+.gal img{width:100%}
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:60;display:grid;place-items:center;padding:24px}
+#lightbox[hidden]{display:none}
+#lightbox img{max-height:86vh;border-radius:12px}
+#lightbox p{color:#fff;text-align:center;margin-top:10px}
+
+.visit{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px}
+.visit h3{margin-bottom:10px}
+.visit table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+.visit td{padding:5px 0;border-bottom:1px solid var(--line)}
+.visit td:last-child{text-align:right}
+.visit p{color:var(--muted)}
+.mapph{border:2px dashed var(--line);border-radius:18px;min-height:220px;display:grid;place-items:center;color:var(--muted);text-align:center;padding:20px}
+
+footer{background:#061810;padding:44px 0 96px;font-size:.95rem;color:var(--muted)}
+footer .cols{display:grid;grid-template-columns:1.3fr 1fr 1fr 1fr;gap:30px}
+@media (max-width:820px){footer .cols{grid-template-columns:1fr 1fr}}
+footer img{height:84px}
+footer h4{color:var(--cream);margin:0 0 8px;font-size:1rem}
+footer a{display:block;text-decoration:none;padding:3px 0}
+footer a:hover{color:var(--cream)}
+footer .fine{margin-top:28px;padding-top:18px;border-top:1px solid var(--line);font-size:.86rem}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stat{border:1px solid var(--line);border-radius:16px;padding:18px;background:rgba(255,255,255,.04)}
+.stat b{display:block;font-family:var(--display);font-size:2.4rem;line-height:1}
+.dash{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:22px}
+@media (max-width:860px){.dash{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);border-radius:16px;padding:22px;background:rgba(255,255,255,.04)}
+.panel h3{margin-bottom:10px}
+.panel label{color:var(--cream)}
+.panel ul{margin:0;padding-left:18px;color:var(--muted)}
+.rowx{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mobilebar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:none;gap:10px;padding:10px 16px;background:rgba(9,33,22,.97);border-top:1px solid var(--line)}
+.mobilebar .btn{flex:1}
+@media (max-width:760px){.mobilebar{display:flex}}
+input,select,textarea{min-width:0}
+@media (max-width:760px){
+  body{font-size:16px}
+  section.band{padding-block:48px}
+  .phead .wrap{padding-block:44px}
+  .top .logo img{height:46px}
+  .card{padding:20px}
+  .cat h3{font-size:1.6rem}
+  .chips{top:63px}
+  .item .ph{width:72px;height:72px}
+  .cal-top h3{font-size:1.35rem;min-width:0;flex:1;text-align:center}
+  .day{padding:3px 4px;font-size:.8rem;border-radius:8px}
+  .mk{width:6px;height:6px}
+  .hero .wrap{padding-block:36px 44px}
+  .tab{padding:9px 14px;font-size:.95rem}
+  footer .cols{gap:22px}
+}
+@media (max-width:420px){.f2{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}
+.mobilebar [data-vieworder]{display:none}
+body.ordering .mobilebar a{display:none}
+body.ordering .mobilebar [data-vieworder]{display:inline-flex}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="announce">Live music every Friday and Saturday at 7 PM</div>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#home" aria-label="Shenanigan's Snug home"><img src="img/logo.png" alt="Shenanigan's Snug Irish Pub and Grill"></a>
+    <nav aria-label="Main" id="nav">
+      <a href="#home">Home</a><a href="#menu">Menu</a><a href="#events">Events</a><a href="#reservations">Reservations</a><a href="#parties">Private parties</a><a href="#about">Our story</a><a href="#gallery">Gallery</a><a href="#contact">Visit</a>
+    </nav>
+    <div class="actions">
+      <a class="btn btn-amber btn-sm" href="#order">Order online <span class="cart-count" id="cartCount">0</span></a>
+      <button id="burger" type="button" aria-label="Open menu" aria-expanded="false">&#9776;</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ================= HOME ================= -->
+<div class="page" data-page="home">
+  <section class="hero" style="background-image:url(img/spread.jpg)">
+    <div class="wrap">
+      <img class="biglogo" src="img/logo.png" alt="Shenanigan's Snug Irish Pub and Grill">
+      <h1>Pull up a stool. Stay for the shenanigans.</h1>
+      <p class="lede">Cave Creek's snug little Irish pub. Guinness-battered fish and chips, a proper pint, and live music on the weekend.</p>
+      <div class="cta">
+        <a class="btn btn-amber" href="#order">Order online</a>
+        <a class="btn btn-ghost" href="#reservations">Book a table</a>
+        <a class="btn btn-ghost" href="#menu">See the menu</a>
+      </div>
+      <div class="status"><span class="dot" id="openDot"></span><span id="openText">Checking hours</span></div>
+    </div>
+  </section>
+
+  <div class="hh"><div class="wrap">
+    <strong class="t">Happy hour</strong><span class="pill" id="hhPill">Mon to Fri, 1 to 6 PM</span>
+    <ul><li><b>$5</b> 20oz domestic drafts</li><li><b>$6</b> frozen margaritas</li><li><b>$6</b> well drinks</li><li><b>$8</b> half pub nachos</li></ul>
+  </div></div>
+
+  <section class="band paper"><div class="wrap">
+    <div class="sec-head"><div><h2>House favorites</h2><p>The plates regulars order before they've sat down.</p></div><a class="btn btn-line btn-sm" href="#menu">See the full menu</a></div>
+    <div class="favs" id="favs"></div>
+  </div></section>
+
+  <section class="band"><div class="wrap feature">
+    <img src="img/band.jpg" alt="A band playing live on the patio">
+    <div>
+      <h2>What's on this week</h2>
+      <div class="week" id="weekList"></div>
+      <div class="cta"><a class="btn btn-ghost btn-sm" href="#events">See the full calendar</a></div>
+    </div>
+  </div></section>
+
+  <section class="band cellar"><div class="wrap feature flip">
+    <img src="img/salad.jpg" alt="Strawberry chicken salad with a pint of Guinness">
+    <div>
+      <h2>A proper pint and a plate to match</h2>
+      <p>Shepherd's pie under garlic mash and Irish cheddar. A Reuben braised in Guinness. Wine-infused Black Angus burgers. Same family recipes as Mountain View Pub, in a room built for settling in.</p>
+      <div class="cta"><a class="btn btn-amber" href="#reservations">Book a table</a><a class="btn btn-ghost" href="#about">Read our story</a></div>
+    </div>
+  </div></section>
+
+  <section class="band paper"><div class="wrap feature">
+    <div>
+      <h2>Bring the whole crew</h2>
+      <p>Birthdays, team nights, rehearsal dinners and send-offs. Tell us the date and the headcount and we'll sort the food, the drinks and the room.</p>
+      <div class="cta"><a class="btn btn-ink" href="#parties">Plan a party</a></div>
+    </div>
+    <img src="img/pizza.jpg" alt="Pizza and wine on the patio">
+  </div></section>
+</div>
+
+<!-- ================= MENU ================= -->
+<div class="page" data-page="menu">
+  <section class="phead" style="background-image:url(img/nachos.jpg)"><div class="wrap"><h1>The menu</h1><p>Irish favorites and American pub classics, made in house.</p><div class="cta"><a class="btn btn-amber" href="#order">Order online for pickup</a></div></div></section>
+  <section class="band paper"><div class="wrap">
+    <div class="tabs" role="tablist" data-tabs="menu"></div>
+    <div class="chips" data-chips="menu"></div>
+    <div data-body="menu"></div>
+  </div></section>
+</div>
+
+<!-- ================= ORDER ================= -->
+<div class="page" data-page="order">
+  <section class="phead" style="background-image:url(img/club.jpg)"><div class="wrap"><h1>Order online</h1><p>Pick your plates, choose a pickup time, and we'll have it ready at the bar.</p></div></section>
+  <section class="band paper"><div class="wrap order-layout">
+    <div>
+      <div class="tabs" role="tablist" data-tabs="order"></div>
+      <div class="chips" data-chips="order"></div>
+      <div data-body="order"></div>
+    </div>
+    <aside class="cartbox" id="cartBox" aria-label="Your order"></aside>
+  </div></section>
+</div>
+
+<!-- ================= EVENTS ================= -->
+<div class="page" data-page="events">
+  <section class="phead" style="background-image:url(img/band.jpg)"><div class="wrap"><h1>Music, trivia and craic</h1><p>Live bands on the weekend, trivia midweek, and every big game on the screens.</p></div></section>
+  <section class="band"><div class="wrap cal-layout">
+    <div>
+      <div class="cal-top"><button class="navb" id="prevM" type="button" aria-label="Previous month">&#8249;</button><h3 id="calTitle"></h3><button class="navb" id="nextM" type="button" aria-label="Next month">&#8250;</button></div>
+      <div class="grid" id="calGrid"></div>
+      <div class="legend"><span><i class="mk k-music"></i>Live music</span><span><i class="mk k-trivia"></i>Trivia</span><span><i class="mk k-sport"></i>Game day</span><span><i class="mk k-special"></i>Special event</span></div>
+    </div>
+    <div class="daybox" id="dayBox" aria-live="polite"></div>
+  </div></section>
+</div>
+
+<!-- ================= RESERVATIONS ================= -->
+<div class="page" data-page="reservations">
+  <section class="phead" style="background-image:url(img/mussels2.jpg)"><div class="wrap"><h1>Book a table</h1><p>Tables for up to 8, any day we're open.</p></div></section>
+  <section class="band paper"><div class="wrap feature">
+    <div class="card">
+      <h3>Reserve your spot</h3>
+      <form id="bookForm">
+        <div class="f2"><label for="bDate">Date<input id="bDate" type="date" required></label><label for="bTime">Time<select id="bTime" required></select></label></div>
+        <div class="f2"><label for="bSize">Guests<select id="bSize"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></label><label for="bPhone">Mobile number<input id="bPhone" type="tel" autocomplete="tel" required></label></div>
+        <label for="bName">Name<input id="bName" autocomplete="name" required></label>
+        <label for="bNote">Anything we should know?<input id="bNote" placeholder="Birthday, high chair, patio"></label>
+        <button class="btn btn-ink" type="submit">Request this table</button>
+      </form>
+      <div class="ok" id="bookOk" hidden></div>
+    </div>
+    <div>
+      <h2>Good to know</h2>
+      <ul class="ticks">
+        <li>We hold your table for 15 minutes.</li>
+        <li>Walk-ins are always welcome at the bar.</li>
+        <li>More than 8 of you? <a href="#parties">Send a party request</a> and we'll set up a space.</li>
+        <li>Live music nights fill up early, so book ahead for Friday and Saturday.</li>
+      </ul>
+    </div>
+  </div></section>
+</div>
+
+<!-- ================= PARTIES ================= -->
+<div class="page" data-page="parties">
+  <section class="phead" style="background-image:url(img/pizza.jpg)"><div class="wrap"><h1>Private parties</h1><p>Birthdays, team nights, rehearsal dinners, wakes done right.</p></div></section>
+  <section class="band paper"><div class="wrap feature">
+    <div>
+      <h2>Your party, our pub</h2>
+      <p>Tell us the date and headcount. We'll call you back with food and drink options that fit your crowd and your budget.</p>
+      <ul class="ticks">
+        <li>Shared platters, a full buffet, or order off the menu.</li>
+        <li>Drink packages or a simple bar tab.</li>
+        <li>Book around a live music night and the band comes free.</li>
+        <li>Catering for pickup when the party is at your place.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Plan a party</h3>
+      <form id="partyForm">
+        <div class="f2"><label for="pDate">Party date<input id="pDate" type="date" required></label><label for="pSize">Headcount<input id="pSize" type="number" min="9" max="300" placeholder="25" required></label></div>
+        <label for="pName">Name<input id="pName" autocomplete="name" required></label>
+        <label for="pEmail">Email<input id="pEmail" type="email" autocomplete="email" required></label>
+        <label for="pNote">What are we celebrating?<textarea id="pNote" rows="2"></textarea></label>
+        <button class="btn btn-ink" type="submit">Send party request</button>
+      </form>
+      <div class="ok" id="partyOk" hidden></div>
+    </div>
+  </div></section>
+</div>
+
+<!-- ================= ABOUT ================= -->
+<div class="page" data-page="about">
+  <section class="phead" style="background-image:url(img/bar.jpg)"><div class="wrap"><h1>Our story</h1><p>From the family behind Mountain View Pub.</p></div></section>
+  <section class="band"><div class="wrap feature">
+    <div>
+      <div class="defn"><div class="w">snug</div><div class="ph2">/snʌg/ noun, Irish</div><p>A small, cozy room tucked inside a pub, where the best conversations and the worst-kept secrets have always lived.</p></div>
+      <h2>A second home in Cave Creek</h2>
+      <p>We've been pouring pints and plating fish and chips in Cave Creek for years at Mountain View Pub. Shenanigan's Snug is our second home in town: the same family recipes and the same warm welcome.</p>
+      <p>Come for the Guinness-braised Reuben. Stay because somebody started a singalong.</p>
+    </div>
+    <img src="img/exterior.jpg" alt="Mountain View Pub in Cave Creek seen from above">
+  </div></section>
+  <section class="band cellar"><div class="wrap feature flip">
+    <img src="img/pretzel.jpg" alt="The big pretzel hanging on its stand">
+    <div>
+      <h2>Made in house, poured properly</h2>
+      <p>The cod is battered in Guinness. The corned beef is cooked in it. The Bloody Mary mix has thirteen ingredients and we're not telling you a single one.</p>
+      <div class="cta"><a class="btn btn-amber" href="#menu">See the menu</a></div>
+    </div>
+  </div></section>
+</div>
+
+<!-- ================= GALLERY ================= -->
+<div class="page" data-page="gallery">
+  <section class="phead" style="background-image:url(img/barrels.jpg)"><div class="wrap"><h1>Gallery</h1><p>A taste of what's coming out of the kitchen.</p></div></section>
+  <section class="band"><div class="wrap"><div class="gal" id="gal"></div></div></section>
+</div>
+
+<!-- ================= CONTACT ================= -->
+<div class="page" data-page="contact">
+  <section class="phead" style="background-image:url(img/beer.jpg)"><div class="wrap"><h1>Find the Snug</h1><p>Cave Creek, Arizona.</p></div></section>
+  <section class="band"><div class="wrap">
+    <div class="visit">
+      <div><h3>Hours</h3><table><tbody>
+        <tr><td>Monday to Friday</td><td>11 AM to 10 PM</td></tr>
+        <tr><td>Saturday and Sunday</td><td>8 AM to 10 PM</td></tr>
+        <tr><td>Happy hour</td><td>Mon to Fri, 1 to 6 PM</td></tr></tbody></table></div>
+      <div><h3>Where</h3><p>Cave Creek, Arizona<br>Street address coming soon</p><h3 style="margin-top:22px">Say hello</h3><p>Phone and email coming soon.</p></div>
+      <div class="mapph">Map and directions go here once the address is confirmed</div>
+    </div>
+  </div></section>
+  <section class="band paper"><div class="wrap feature">
+    <div><h2>Send us a note</h2><p>Questions, lost hats, band bookings, job inquiries. We read everything.</p></div>
+    <div class="card"><form id="msgForm" style="margin-top:0">
+      <label for="mName">Name<input id="mName" autocomplete="name" required></label>
+      <label for="mEmail">Email<input id="mEmail" type="email" autocomplete="email" required></label>
+      <label for="mText">Message<textarea id="mText" rows="3" required></textarea></label>
+      <button class="btn btn-ink" type="submit">Send message</button></form>
+      <div class="ok" id="msgOk" hidden></div></div>
+  </div></section>
+</div>
+
+<!-- ================= STAFF ================= -->
+<div class="page" data-page="staff">
+  <section class="band cellar"><div class="wrap">
+    <div class="sec-head"><div><h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Staff dashboard</h1><p>A preview of the owner's side. On the live site this page sits behind a secure staff sign-in, and every change saves for all visitors. In this preview, changes last until the page reloads.</p></div></div>
+    <div class="stats">
+      <div class="stat"><b id="sOrders">0</b>Online orders today</div>
+      <div class="stat"><b id="sBooks">0</b>Table requests</div>
+      <div class="stat"><b id="sParties">0</b>Party requests</div>
+    </div>
+    <div class="dash">
+      <div class="panel"><h3>Incoming</h3><ul id="inbox"><li>Nothing yet. Place an order or book a table on the site and it shows up here.</li></ul></div>
+      <div class="panel"><h3>Announcement bar</h3>
+        <label for="aText">Message<input id="aText" value="Live music every Friday and Saturday at 7 PM"></label>
+        <div class="rowx" style="margin-top:10px"><button class="btn btn-amber btn-sm" id="aSave" type="button">Update banner</button><button class="btn btn-ghost btn-sm" id="aHide" type="button">Hide banner</button></div></div>
+      <div class="panel"><h3>Mark a dish sold out</h3>
+        <div class="rowx"><select id="soSel" aria-label="Dish" style="flex:1;min-width:200px"></select><button class="btn btn-amber btn-sm" id="soBtn" type="button">Toggle sold out</button></div></div>
+      <div class="panel"><h3>Add an event</h3>
+        <form id="evForm" style="margin-top:0">
+          <label for="eTitle">Event name<input id="eTitle" placeholder="Bagpipes and brunch" required></label>
+          <div class="f2"><label for="eDate">Date<input id="eDate" type="date" required></label><label for="eTime">Time<input id="eTime" type="time" value="19:00" required></label></div>
+          <label for="eKind">Type<select id="eKind"><option value="music">Live music</option><option value="trivia">Trivia</option><option value="sport">Game day</option><option value="special">Special event</option></select></label>
+          <button class="btn btn-amber btn-sm" type="submit">Add to calendar</button>
+        </form></div>
+    </div>
+    <div class="ok" id="admOk" hidden style="max-width:520px"></div>
+  </div></section>
+</div>
+</main>
+
+<footer><div class="wrap">
+  <div class="cols">
+    <div><img src="img/logo.png" alt=""><p style="margin-top:10px">Irish pub and grill in Cave Creek, Arizona.</p></div>
+    <div><h4>Eat and drink</h4><a href="#menu">Menu</a><a href="#order">Order online</a><a href="#reservations">Book a table</a></div>
+    <div><h4>The pub</h4><a href="#events">Events</a><a href="#parties">Private parties</a><a href="#gallery">Gallery</a><a href="#about">Our story</a></div>
+    <div><h4>Visit</h4><a href="#contact">Hours and location</a><a href="#staff">Staff sign-in</a></div>
+  </div>
+  <p class="fine">Preview site. Hours, events, address and contact details are examples until the owners confirm them. Photos are from Mountain View Pub. Orders, bookings and messages made here are not sent anywhere.</p>
+</div></footer>
+
+<div class="mobilebar"><button class="btn btn-amber btn-sm" type="button" data-vieworder>View your order (<span id="mbCount">0</span>)</button><a class="btn btn-amber btn-sm" href="#order">Order online</a><a class="btn btn-ghost btn-sm" href="#reservations">Book a table</a></div>
+<div id="lightbox" hidden><div><img alt=""><p></p></div></div>
+
+<script>
+const MENU = [{"menu": "Main Menu", "cat": "Light Nibbles", "note": "", "name": "Chips & Salsa Flight", "desc": "Homemade chips with fresh salsa, verde salsa and queso dip", "addons": "", "opts": [{"label": "", "price": 16}]}, {"menu": "Main Menu", "cat": "Light Nibbles", "note": "", "name": "Quesadilla", "desc": "Stuffed with tender chicken or juicy carne asada for a satisfying starter accompanied by sour cream and salsa", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Light Nibbles", "note": "", "name": "Pub Cheese & Crackers", "desc": "Artfully infused with horseradish or wine, and complemented by crispy crackers", "addons": "", "opts": [{"label": "", "price": 15}]}, {"menu": "Main Menu", "cat": "Light Nibbles", "note": "", "name": "Pub's Shrimp Ceviche", "desc": "Fully cooked fresh shrimp drenched in our Signature Bloody Mary mix, avocado and cucumber, served with chips", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Light Nibbles", "note": "", "name": "Cocktail Shrimp", "desc": "Cool and refreshing cocktail shrimp enhanced by our crafted homemade cocktail sauce", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Light Nibbles", "note": "", "name": "Cheese Crisp", "desc": "Crisped flour tortilla, topped with melted mozzarella and bold cheddar cheese. Complemented by our homemade salsa", "addons": "", "opts": [{"label": "", "price": 14}]}, {"menu": "Main Menu", "cat": "Shareables", "note": "", "name": "Pub's Big Pretzel", "desc": "Topped with garlic butter and parmesan, served with homemade Irish cheese sauce and spicy mustard", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Shareables", "note": "", "name": "Blarney Bites", "desc": "The Blarney Bites transforms traditional macaroni and cheese into crispy, golden bites", "addons": "", "opts": [{"label": "", "price": 13}]}, {"menu": "Main Menu", "cat": "Shareables", "note": "", "name": "Shrimp Buckets", "desc": "Boiled in signature seasoning, chilled and ready to peel, served with homemade cocktail sauce and limes", "addons": "", "opts": [{"label": "Half Pound", "price": 20}, {"label": "Full Pound", "price": 27}]}, {"menu": "Main Menu", "cat": "Shareables", "note": "", "name": "Irish Pub Nachos", "desc": "Layers of our special Shepherd's Pie black Angus beef, seasoned beef, Irish cheddar, nacho cheese, and a medley of onions, bell peppers, and tomatoes, topped with the creamy white stuff", "addons": "Add Jalapeños +$1.00", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Shareables", "note": "", "name": "Fresh Cracklin' Pork Rhines", "desc": "Get ready to snap, crackle, and pop! These house-made wonders are fried to golden-brown perfection and paired with hot buffalo sauce for a kick of flavor", "addons": "", "opts": [{"label": "", "price": 11}]}, {"menu": "Main Menu", "cat": "Shareables", "note": "", "name": "Battered Veggie Basket", "desc": "A tasty mix of battered mushrooms, onion rings, zucchini, cheese sticks, and jalapeno poppers, served with marinara and ranch for a flavorful experience", "addons": "", "opts": [{"label": "", "price": 16}]}, {"menu": "Main Menu", "cat": "Shareables", "note": "", "name": "Jumbo Chefs Wings", "desc": "Fluttered in your choice of sauce: Medium, Hot, BBQ, Sweet Golden BBQ, Garlic Parmesan, or Cajun Dry Rub", "addons": "", "opts": [{"label": "6 Wings", "price": 13}, {"label": "12 Wings", "price": 21}]}, {"menu": "Main Menu", "cat": "Shareables", "note": "", "name": "The Snug's Classic Flatbreads", "desc": "Our classic homemade flatbreads serve up a tantalizing treat you won't forget", "addons": "", "opts": [{"label": "Traditional Margherita", "price": 16}, {"label": "Pub's Meaty BBQ – Chicken or Pulled Pork", "price": 17}, {"label": "Patrick Pepperoni", "price": 16}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Strawberry Chicken Salad", "desc": "Fresh spinach tossed in bacon dressing, topped with strawberries, blue cheese crumbles, and candied pecans", "addons": "", "opts": [{"label": "", "price": 16}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Caprese Salad", "desc": "Fresh buffalo mozzarella cheese, tomatoes and basil drizzled balsamic reduction", "addons": "", "opts": [{"label": "", "price": 14}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Grilled Avocado Salad", "desc": "Grilled avocado drizzled with balsamic reduction and topped with pickled onions, carrots & peppers", "addons": "", "opts": [{"label": "", "price": 15}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Wedge Salad", "desc": "Fresh wedge accompanied by tomatoes, onions and bacon, served with blue cheese crumbles and drenched in ranch", "addons": "", "opts": [{"label": "", "price": 14}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Chicken Pasta Salad", "desc": "Marinated chicken together with onions, bell peppers, craisins, tomatoes, cheese, bow tie pasta placed on top of iceberg greens", "addons": "", "opts": [{"label": "", "price": 15}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Party In Your Mouth", "desc": "Chopped salad... iceberg, bell pepper, onion, craisins, tomato, cheese, boiled egg all tossed in homemade ranch dressing... every bite is a \"party!\"", "addons": "", "opts": [{"label": "", "price": 15}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Fajita Salad", "desc": "Chicken, ground beef or carne asada with grilled peppers and onions. Topped with pico and salsa on the side", "addons": "", "opts": [{"label": "", "price": 17}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Pecan Chicken Salad", "desc": "Homemade pecan chicken salad, elegantly served on a bed of lettuce, onion, and ripe tomato", "addons": "", "opts": [{"label": "", "price": 16}]}, {"menu": "Main Menu", "cat": "Fresh Soup & Salad", "note": "", "name": "Soup of the Day", "desc": "(In Season Only) Ask your server for the Chef's flavor of the day", "addons": "", "opts": [{"label": "", "price": 10}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Grilled Chicken", "desc": "A marinated grilled chicken breast, cooked to perfection and served with a side of fresh garnish", "addons": "", "opts": [{"label": "", "price": 17}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Pub's Signature Reuben", "desc": "Cooked in Guinness, sliced and grilled with sauerkraut, Swiss cheese & 1000 Island, grilled marbled rye", "addons": "", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "BLT", "desc": "Hickory-smoked bacon, crisp lettuce, and fresh tomato, all perfectly layered on toasted white bread", "addons": "", "opts": [{"label": "", "price": 16}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Irish Club", "desc": "Turkey, ham, and bacon & tomato on a bed of crisp lettuce and creamy mayo", "addons": "", "opts": [{"label": "", "price": 17}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Tuna Melt", "desc": "Fresh tuna salad, grilled and smothered in melted American cheese for a flavorful and indulging treat", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Classic Grilled Cheese", "desc": "On Texas toast", "addons": "Add crispy bacon +$3.00; fresh tomato +$1.00; savory ham +$4.00", "opts": [{"label": "", "price": 13}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Fresh Wrap", "desc": "Choice of turkey, chicken breast or ham, wrapped tightly with lettuce, tomato, onion and homemade chipotle mayo", "addons": "Add Fresh Avocado +$2.00", "opts": [{"label": "", "price": 17}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Buffalo Chicken Wrap", "desc": "Grilled chicken breast, tomatoes, lettuce, and spicy buffalo sauce, all wrapped in a tender flour tortilla", "addons": "", "opts": [{"label": "", "price": 17}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Salmon Wrap", "desc": "Grilled salmon, lettuce, and tomatoes, drizzled with homemade ranch, snuggled in a spinach wrap", "addons": "", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Prime Rib Sandwich", "desc": "Onions, peppers, choice of cheese. Served with French Fries and Au Jus", "addons": "", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Sandwiches", "note": "Served with fries or potato chips", "name": "Hot Turkey", "desc": "Grilled turkey, provolone, red onion, tomato and basil garlic mayo on a torta roll", "addons": "", "opts": [{"label": "", "price": 17}]}, {"menu": "Main Menu", "cat": "Pub Burgers", "note": "Served with fries or potato chips", "name": "Pub Burger", "desc": "Wine-infused Black Angus beef, seasoned to perfection", "addons": "Add cheese +$1.00; bacon +$3.00", "opts": [{"label": "", "price": 17}]}, {"menu": "Main Menu", "cat": "Pub Burgers", "note": "Served with fries or potato chips", "name": "Pub Mushroom Swiss Burger", "desc": "Our Pub burger with grilled mushrooms, topped with swiss cheese", "addons": "", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Pub Burgers", "note": "Served with fries or potato chips", "name": "Pub's Patty Melt", "desc": "Black Angus beef patty topped with Swiss cheese, sweet grilled onions, and 1000 Island sauce. Served on grilled marbled rye bread", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Pub Burgers", "note": "Served with fries or potato chips", "name": "Blarney Stacker Burger", "desc": "Layers of flavor with cheddar cheese, crispy bacon, homemade BBQ sauce, and fried onions, atop a wine-infused Black Angus burger", "addons": "", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Pub Burgers", "note": "Served with fries or potato chips", "name": "Jalapeno Cream Cheese Burger", "desc": "A spicey creamy Pub Burger topped with a grilled jalapeno and smothered with cream cheese", "addons": "", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Shepherds Pie", "desc": "Black Angus beef, carrot, pea and onion casserole, smothered with garlic mashed potatoes and topped with Irish Cheddar cheese served with roll", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Fish & Chips", "desc": "Our famous Guinness battered cod served with Irish cut potato chips, homemade slaw and malted vinegar, tartar sauce upon request", "addons": "", "opts": [{"label": "", "price": 20}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Garlic Marinara Shrimp", "desc": "Sautéed in garlic and drenched in homemade marinara, served with toast points", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Stuffed Bell Peppers", "desc": "Ground Angus Beef, onions, tomatoes snuggled in a fresh bell pepper and topped with homemade marinara sauce, sided with rice", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Blackened Cod", "desc": "Seasoned, blacked, sauteed Cod filet served with sauteed veggies of the day and rice", "addons": "", "opts": [{"label": "", "price": 20}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Coconut Shrimp", "desc": "Butterflied shrimp tossed in fresh coconut coating, served with a pineapple jam and tamarind glaze", "addons": "", "opts": [{"label": "", "price": 20}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Steamed Clams or Mussels", "desc": "Choice of fresh clams or mussels steamed in a white wine garlic broth or our homemade marinara sauce and shallots", "addons": "Add Pasta +$4.00", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Pub's Pigs Wings", "desc": "Meaty pig's wings (3) cooked to a tender pull and served with two chef's sauces, bourbon & teriyaki", "addons": "", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Grilled Skewers", "desc": "Two amazing skewers of chicken, shrimp, or veggies only, seasoned and grilled with veggies", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Tilapia Tacos", "desc": "Three sauteed Tilapia tacos, topped with a dab of homemade coleslaw, served street style on soft corn shells & limes", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Main Plates", "note": "", "name": "Grilled Chicken Tenders", "desc": "Three juicy, grilled chicken tenders, served with chips", "addons": "", "opts": [{"label": "", "price": 16}]}, {"menu": "Main Menu", "cat": "Pub's Famous Smoked BBQ", "note": "Served with fries, cowboy beans, coleslaw, and cornbread. Served seasonally.", "name": "Ribs", "desc": "Homemade BBQ sauce", "addons": "", "opts": [{"label": "Half Slab", "price": 23}, {"label": "Full Slab", "price": 41}]}, {"menu": "Main Menu", "cat": "Pub's Famous Smoked BBQ", "note": "Served with fries, cowboy beans, coleslaw, and cornbread. Served seasonally.", "name": "Rib Tips", "desc": "Smokey tender tips", "addons": "", "opts": [{"label": "", "price": 19}]}, {"menu": "Main Menu", "cat": "Pub's Famous Smoked BBQ", "note": "Served with fries, cowboy beans, coleslaw, and cornbread. Served seasonally.", "name": "Chicken", "desc": "Smoked", "addons": "", "opts": [{"label": "Half", "price": 20}]}, {"menu": "Main Menu", "cat": "Pub's Famous Smoked BBQ", "note": "Served with fries, cowboy beans, coleslaw, and cornbread. Served seasonally.", "name": "Brisket", "desc": "Smoked, tender & flavorful", "addons": "", "opts": [{"label": "", "price": 23}]}, {"menu": "Main Menu", "cat": "Pub's Famous Smoked BBQ", "note": "Served with fries, cowboy beans, coleslaw, and cornbread. Served seasonally.", "name": "Pulled Pork", "desc": "Piled high with homemade BBQ sauce on a brioche bun", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Pub's Famous Smoked BBQ", "note": "Served with fries, cowboy beans, coleslaw, and cornbread. Served seasonally.", "name": "Roundhouse", "desc": "Bologna steak with grilled onions, coleslaw & homemade BBQ sauce on Texas toast", "addons": "", "opts": [{"label": "", "price": 17}]}, {"menu": "Main Menu", "cat": "Pub's Famous Smoked BBQ", "note": "Served with fries, cowboy beans, coleslaw, and cornbread. Served seasonally.", "name": "Combo Platter", "desc": "Chicken, Tips, Ribs, Brisket, Smoke Bologna. Feeds up to 4+ people", "addons": "", "opts": [{"label": "", "price": 63}]}, {"menu": "Main Menu", "cat": "Pub's Famous Smoked BBQ", "note": "Served with fries, cowboy beans, coleslaw, and cornbread. Served seasonally.", "name": "Burnt Ends Mac 'n Cheese", "desc": "Smokey burnt ends with creamy mac 'n Irish cheese and green chilies", "addons": "", "opts": [{"label": "", "price": 18}]}, {"menu": "Main Menu", "cat": "Sides", "note": "", "name": "French Fries", "desc": "", "addons": "", "opts": [{"label": "", "price": 6}]}, {"menu": "Main Menu", "cat": "Sides", "note": "", "name": "Sweet Potato Fries", "desc": "", "addons": "", "opts": [{"label": "", "price": 7}]}, {"menu": "Main Menu", "cat": "Sides", "note": "", "name": "Side Salad", "desc": "", "addons": "", "opts": [{"label": "", "price": 7}]}, {"menu": "Main Menu", "cat": "Sides", "note": "", "name": "Slaw", "desc": "", "addons": "", "opts": [{"label": "", "price": 4}]}, {"menu": "Main Menu", "cat": "Sides", "note": "", "name": "Hand Cut House Chips", "desc": "", "addons": "", "opts": [{"label": "", "price": 6}]}, {"menu": "Main Menu", "cat": "Desserts", "note": "", "name": "Warm Buttercake", "desc": "With ice cream", "addons": "", "opts": [{"label": "", "price": 11}]}, {"menu": "Main Menu", "cat": "Desserts", "note": "", "name": "Chocolate Mousse", "desc": "", "addons": "", "opts": [{"label": "", "price": 11}]}, {"menu": "Main Menu", "cat": "Desserts", "note": "", "name": "Cheese Cake", "desc": "", "addons": "", "opts": [{"label": "", "price": 11}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Food", "note": "", "name": "1/2 Pub Nachos", "desc": "", "addons": "", "opts": [{"label": "", "price": 8}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Food", "note": "", "name": "Chef's Wings", "desc": "Half dozen wings smothered in choice of: Medium, Hot, Mild, BBQ, Sweet Golden BBQ, Garlic Parmesan or Cajun dry rub", "addons": "", "opts": [{"label": "Half dozen", "price": 11}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Food", "note": "", "name": "Garlic Marinara Shrimp", "desc": "Sautéed in garlic and drenched in homemade marinara, served with toast points", "addons": "", "opts": [{"label": "", "price": 12}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Food", "note": "", "name": "Battered Veggie Basket", "desc": "Freshly battered and deep fried to crispy perfection", "addons": "", "opts": [{"label": "", "price": 12}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Food", "note": "", "name": "Dubliner Drunken Shrimp", "desc": "Chef gets these shrimp drunk on white wine, Irish cheese and garlic and served with toast points", "addons": "", "opts": [{"label": "", "price": 12}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Food", "note": "", "name": "Irish Potato Skins", "desc": "Home made, baked skins topped with Guinness corn beef, Irish Cheddar Cheese and Leprechaun cream sauce", "addons": "", "opts": [{"label": "", "price": 10}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Food", "note": "", "name": "The Snug's Classic Flatbreads", "desc": "Our classic homemade flatbreads serve up a tantalizing treat you won't forget. Choice of Pub's Meaty BBQ (Chicken or Pulled Pork), Patrick Pepperoni, or Traditional Margherita", "addons": "", "opts": [{"label": "Choice of style", "price": 12}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Food", "note": "", "name": "Triple Shamrock Sliders", "desc": "Hot roast beef and Swiss with au jus; ham or turkey with cheese, lettuce and tomato; pulled pork, coleslaw with BBQ sauce", "addons": "", "opts": [{"label": "", "price": 12}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Drinks", "note": "", "name": "20oz Domestic Drafts", "desc": "", "addons": "", "opts": [{"label": "", "price": 5}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Drinks", "note": "", "name": "Frozen Margarita", "desc": "", "addons": "", "opts": [{"label": "", "price": 6}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Drinks", "note": "", "name": "Well Drinks", "desc": "", "addons": "", "opts": [{"label": "", "price": 6}]}, {"menu": "Happy Hour (Mon–Fri 1–6 PM)", "cat": "Happy Hour Drinks", "note": "", "name": "House Tap Wine", "desc": "Pine Ridge Chenin Blanc or OZV Red Blend", "addons": "", "opts": [{"label": "", "price": 6}]}, {"menu": "Breakfast Libations", "cat": "Breakfast Libations", "note": "", "name": "House Favorite Bloody Mary", "desc": "Delicious homemade 13 ingredient bloody mary mix with your choice of well vodka, tequila, or whiskey", "addons": "", "opts": [{"label": "", "price": 11}]}, {"menu": "Breakfast Libations", "cat": "Breakfast Libations", "note": "", "name": "Sparkling Mimosa", "desc": "Fresh orange juice and champagne just to wake you up and get you going", "addons": "", "opts": [{"label": "", "price": 10}]}, {"menu": "Breakfast Libations", "cat": "Breakfast Libations", "note": "", "name": "Irish Creme Coffee", "desc": "Our family recipe Irish Creme along with our fresh brewed coffee. Something to tell grandma about!", "addons": "", "opts": [{"label": "", "price": 10}]}, {"menu": "Breakfast Libations", "cat": "Breakfast Libations", "note": "", "name": "Coffee, Tea, Milk", "desc": "", "addons": "", "opts": [{"label": "", "price": 4}]}, {"menu": "Breakfast Libations", "cat": "Breakfast Libations", "note": "", "name": "Juice", "desc": "", "addons": "", "opts": [{"label": "", "price": 4}]}, {"menu": "Breakfast Libations", "cat": "Breakfast Libations", "note": "", "name": "Chocolate Milk", "desc": "", "addons": "", "opts": [{"label": "", "price": 4}]}];
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const money = n => '$' + (Number.isInteger(n) ? n : n.toFixed(2));
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+const PHOTO = {"Pub's Big Pretzel":'pretzel',"Shrimp Buckets":'bucket',"Irish Pub Nachos":'nachos',"Strawberry Chicken Salad":'salad2',"Irish Club":'club',"Steamed Clams or Mussels":'mussels',"Grilled Skewers":'skewers',"Dubliner Drunken Shrimp":'drunken',"Frozen Margarita":'marg',"Pub Burger":'burger'};
+MENU.forEach((it,i)=>{it.id=i; it.img=PHOTO[it.name]||'';});
+
+/* ---------- Router ---------- */
+const PAGES = ['home','menu','order','events','reservations','parties','about','gallery','contact','staff'];
+function route(){
+  const p = PAGES.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+  $$('.page').forEach(el=>el.classList.toggle('on', el.dataset.page===p));
+  $$('#nav a').forEach(a=>a.classList.toggle('cur', a.getAttribute('href')==='#'+p));
+  document.body.classList.toggle('ordering', p==='order');
+  $('#nav').classList.remove('open'); $('#burger').setAttribute('aria-expanded','false');
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange', route);
+$('#burger').onclick=()=>{const o=$('#nav').classList.toggle('open'); $('#burger').setAttribute('aria-expanded',o);};
+
+/* ---------- Arizona time ---------- */
+function azNow(){
+  const p = new Intl.DateTimeFormat('en-US',{timeZone:'America/Phoenix',hour12:false,weekday:'short',year:'numeric',month:'numeric',day:'numeric',hour:'numeric',minute:'numeric'}).formatToParts(new Date());
+  const g = t => p.find(x=>x.type===t).value;
+  return {dow:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(g('weekday')), h:(+g('hour'))%24 + (+g('minute'))/60, y:+g('year'), m:+g('month')-1, d:+g('day')};
+}
+function status(){
+  const n = azNow(), open = (n.dow===0||n.dow===6)?8:11, isOpen = n.h>=open && n.h<22;
+  $('#openDot').classList.toggle('on', isOpen);
+  $('#openText').textContent = isOpen ? 'Open now until 10 PM' : (n.h<open ? `Opens today at ${open} AM` : 'Closed now. Opens tomorrow.');
+  const hh = n.dow>=1 && n.dow<=5 && n.h>=13 && n.h<18, pill = $('#hhPill');
+  pill.classList.toggle('live', hh); pill.textContent = hh ? 'On right now, until 6 PM' : 'Mon to Fri, 1 to 6 PM';
+}
+status(); setInterval(status, 60000);
+
+/* ---------- Menu (read-only page and order page share this) ---------- */
+const TABS = [['Main Menu','Food'],['Happy Hour (Mon–Fri 1–6 PM)','Happy hour'],['Breakfast Libations','Morning drinks']];
+const active = {menu:TABS[0][0], order:TABS[0][0]};
+const soldOut = new Set();
+function renderMenu(which){
+  const ordering = which==='order';
+  $(`[data-tabs="${which}"]`).innerHTML = TABS.map(([k,l])=>`<button class="tab" role="tab" type="button" aria-selected="${k===active[which]}" data-tab="${esc(k)}">${l}</button>`).join('');
+  const items = MENU.filter(i=>i.menu===active[which]);
+  const cats = [...new Set(items.map(i=>i.cat))];
+  $(`[data-chips="${which}"]`).innerHTML = cats.length>1 ? cats.map(c=>`<button type="button" data-jump="${which}-${slug(c)}">${esc(c)}</button>`).join('') : '';
+  $(`[data-body="${which}"]`).innerHTML = cats.map(c=>{
+    const list = items.filter(i=>i.cat===c), note = list[0].note;
+    return `<div class="cat" id="${which}-${slug(c)}"><h3>${esc(c)}</h3>${note?`<p class="note">${esc(note)}</p>`:''}<div class="items${ordering?' one':''}">${list.map(it=>itemHTML(it,ordering)).join('')}</div></div>`;
+  }).join('');
+}
+function itemHTML(it, ordering){
+  const out = soldOut.has(it.id), single = it.opts.length===1 && !it.opts[0].label;
+  const head = single
+    ? `<div class="row"><span class="name">${esc(it.name)}</span><span class="lead"></span><span class="price">${money(it.opts[0].price)}</span></div>`
+    : `<div class="row"><span class="name">${esc(it.name)}</span></div>` + it.opts.map(o=>`<div class="opt"><span>${esc(o.label)}</span><span class="lead"></span><span class="price">${money(o.price)}</span></div>`).join('');
+  let buy = '';
+  if(out) buy = `<div class="buy"><span class="soldout">Sold out today</span></div>`;
+  else if(ordering) buy = `<div class="buy">${it.opts.map((o,oi)=>`<button class="add" type="button" data-add="${it.id}" data-opt="${oi}">Add${o.label && it.opts.length>1?' '+esc(o.label.split(' – ')[0]):''}</button>`).join('')}</div>`;
+  return `<div class="item${out?' out':''}">${it.img?`<img class="ph" loading="lazy" src="img/${it.img}.jpg" alt="${esc(it.name)}">`:''}<div class="tx">${head}${it.desc?`<p class="desc">${esc(it.desc)}</p>`:''}${it.addons?`<p class="addons">${esc(it.addons)}</p>`:''}${buy}</div></div>`;
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-tab]');
+  if(t){const w=t.parentElement.dataset.tabs; active[w]=t.dataset.tab; renderMenu(w); return;}
+  const j=e.target.closest('[data-jump]');
+  if(j){document.getElementById(j.dataset.jump).scrollIntoView({behavior:'smooth',block:'start'});}
+});
+renderMenu('menu'); renderMenu('order');
+
+/* ---------- Favorites ---------- */
+const FAVS = ["Pub's Big Pretzel","Irish Pub Nachos","Shrimp Buckets","Steamed Clams or Mussels","Grilled Skewers","Irish Club"];
+$('#favs').innerHTML = FAVS.map(n=>{const it=MENU.find(i=>i.name===n&&i.menu==='Main Menu');
+  return `<div class="fav"><img src="img/${it.img}.jpg" alt="${esc(it.name)}"><div class="t"><div class="n"><span>${esc(it.name)}</span><span>${it.opts.length>1?'from ':''}${money(it.opts[0].price)}</span></div><p>${esc(it.desc)}</p><button class="btn btn-ink btn-sm" type="button" data-fav="${it.id}">Add to order</button></div></div>`;}).join('');
+
+/* ---------- Cart ---------- */
+const cart = []; let placed = null;
+const log = {orders:[],books:[],parties:[]};
+function addToCart(id,oi){const hit=cart.find(l=>l.id===id&&l.oi===oi); hit?hit.q++:cart.push({id,oi,q:1}); placed=null; renderCart();}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-add]');
+  if(b){addToCart(+b.dataset.add,+b.dataset.opt); const old=b.textContent; b.textContent='Added'; setTimeout(()=>b.textContent=old,900); return;}
+  const f=e.target.closest('[data-fav]');
+  if(f){addToCart(+f.dataset.fav,0); f.textContent='Added. View order'; f.onclick=()=>{location.hash='order';};}
+});
+function pickupTimes(){
+  const n=azNow(), out=['As soon as possible (about 25 min)'];
+  let t=Math.max(Math.ceil((n.h+0.5)*2)/2, 11);
+  for(;t<=21.5&&out.length<14;t+=0.5){const h=Math.floor(t),m=t%1?'30':'00';out.push(`${((h+11)%12)+1}:${m} ${h<12?'AM':'PM'}`);}
+  return out;
+}
+function renderCart(){
+  const count = cart.reduce((s,l)=>s+l.q,0), box=$('#cartBox');
+  $('#cartCount').textContent = count; $('#mbCount').textContent = count;
+  if(placed){ box.innerHTML = `<h3>Your order</h3><div class="ok">Order placed for ${esc(placed.name)}. Pickup: ${esc(placed.time)}.<small>This is a preview, so no order was sent and no card was charged.</small></div>`; return; }
+  if(!count){ box.innerHTML = `<h3>Your order</h3><p class="hint">Nothing here yet. Tap Add next to any dish to start your order.</p>`; return; }
+  let sub=0;
+  box.innerHTML = `<h3>Your order</h3>` + cart.map((l,i)=>{
+    const it=MENU[l.id], o=it.opts[l.oi]; sub+=o.price*l.q;
+    return `<div class="line"><div><strong>${esc(it.name)}</strong>${o.label?`<br><small>${esc(o.label)}</small>`:''}<div class="qty"><button type="button" data-q="-1" data-i="${i}" aria-label="Remove one">&minus;</button>${l.q}<button type="button" data-q="1" data-i="${i}" aria-label="Add one">+</button></div></div><strong>${money(o.price*l.q)}</strong></div>`;
+  }).join('') + `<div class="tot"><span>Subtotal</span><span>${money(sub)}</span></div><p class="hint">Tax is added at payment.</p>
+  <form id="coForm"><label for="cName">Name for the order<input id="cName" autocomplete="name" required></label><label for="cPhone">Mobile number<input id="cPhone" type="tel" autocomplete="tel" required></label><label for="cTime">Pickup time<select id="cTime">${pickupTimes().map(t=>`<option>${t}</option>`).join('')}</select></label><button class="btn btn-amber" type="submit">Place pickup order</button></form>`;
+  box.dataset.sub = sub;
+}
+$('#cartBox').addEventListener('click',e=>{const b=e.target.closest('[data-q]'); if(!b) return; const l=cart[+b.dataset.i]; l.q+= +b.dataset.q; if(l.q<=0) cart.splice(+b.dataset.i,1); renderCart();});
+$('#cartBox').addEventListener('submit',e=>{e.preventDefault();
+  placed={name:$('#cName').value,time:$('#cTime').value};
+  log.orders.push(`Order for ${placed.name}: ${cart.reduce((s,l)=>s+l.q,0)} items, ${money(+$('#cartBox').dataset.sub)}, pickup ${placed.time}`);
+  cart.length=0; renderCart(); renderDash();});
+renderCart();
+
+document.querySelector('[data-vieworder]').onclick=()=>$('#cartBox').scrollIntoView({behavior:'smooth',block:'start'});
+$('#cartBox').style.scrollMarginTop='80px';
+
+/* ---------- Events ---------- */
+const KIND = {music:'Live music',trivia:'Trivia',sport:'Game day',special:'Special event'};
+const extra = [];
+function eventsOn(y,m,d){
+  const dow = new Date(y,m,d).getDay(), ev=[];
+  if(dow===3) ev.push({title:'Pub trivia night',time:'7:00 PM',kind:'trivia',note:'Teams of up to six. Winners drink for less.'});
+  if(dow===5) ev.push({title:'Friday live music',time:'7:00 PM',kind:'music',note:'Local bands, no cover.'});
+  if(dow===6) ev.push({title:'Saturday live music',time:'7:00 PM',kind:'music',note:'Local bands, no cover.'});
+  if(dow===0) ev.push({title:'Sunday football',time:'11:00 AM',kind:'sport',note:'Every game on, breakfast until noon.'});
+  if(m===2&&d===17) ev.push({title:"St. Patrick's Day party",time:'All day',kind:'special',note:'Bagpipers, Irish dancers and green beer.'});
+  extra.filter(x=>x.y===y&&x.m===m&&x.d===d).forEach(x=>ev.push(x));
+  return ev;
+}
+const today = azNow();
+let view = {y:today.y,m:today.m}, sel = {y:today.y,m:today.m,d:today.d};
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function renderCal(){
+  $('#calTitle').textContent = `${MONTHS[view.m]} ${view.y}`;
+  const first=new Date(view.y,view.m,1).getDay(), days=new Date(view.y,view.m+1,0).getDate();
+  let h = DOW.map(d=>`<div class="dow">${d}</div>`).join('');
+  for(let i=0;i<first;i++) h+=`<div class="day blank"></div>`;
+  for(let d=1;d<=days;d++){
+    const ev=eventsOn(view.y,view.m,d), isT=view.y===today.y&&view.m===today.m&&d===today.d, isS=view.y===sel.y&&view.m===sel.m&&d===sel.d;
+    h+=`<button type="button" class="day${isT?' today':''}" data-d="${d}" aria-pressed="${isS}" aria-label="${MONTHS[view.m]} ${d}, ${ev.length} events">${d}<span class="marks">${ev.map(e=>`<i class="mk k-${e.kind}"></i>`).join('')}</span></button>`;
+  }
+  $('#calGrid').innerHTML=h; renderDay();
+}
+function renderDay(){
+  const ev=eventsOn(sel.y,sel.m,sel.d), dt=new Date(sel.y,sel.m,sel.d);
+  $('#dayBox').innerHTML = `<h3>${DOW[dt.getDay()]}, ${MONTHS[sel.m]} ${sel.d}</h3>` + (ev.length
+    ? `<ul>${ev.map(e=>`<li><i class="mk k-${e.kind}"></i><div><strong>${esc(e.title)}</strong><small>${esc(e.time)}, ${KIND[e.kind]}</small>${e.note?`<small>${esc(e.note)}</small>`:''}</div></li>`).join('')}</ul>`
+    : `<p style="margin-top:12px;color:var(--muted)">Nothing on the calendar. The kitchen and the taps are still open.</p>`)
+    + `<a class="btn btn-amber btn-sm" href="#reservations" style="margin-top:18px">Book a table for this day</a>`;
+}
+$('#calGrid').addEventListener('click',e=>{const b=e.target.closest('[data-d]'); if(!b) return; sel={y:view.y,m:view.m,d:+b.dataset.d}; renderCal();});
+function shift(n){ view.m+=n; if(view.m<0){view.m=11;view.y--} if(view.m>11){view.m=0;view.y++} renderCal(); }
+$('#prevM').onclick=()=>shift(-1); $('#nextM').onclick=()=>shift(1);
+function renderWeek(){
+  const out=[], base=new Date(today.y,today.m,today.d);
+  for(let i=0;i<14&&out.length<4;i++){const dt=new Date(base); dt.setDate(base.getDate()+i);
+    eventsOn(dt.getFullYear(),dt.getMonth(),dt.getDate()).forEach(e=>{ if(out.length<4) out.push({dt,e}); });}
+  $('#weekList').innerHTML = out.map(({dt,e})=>`<div class="ev"><div class="date">${DOW[dt.getDay()]}<b>${dt.getDate()}</b></div><div><strong>${esc(e.title)}</strong><small>${esc(e.time)}, ${KIND[e.kind]}</small></div></div>`).join('');
+}
+renderCal(); renderWeek();
+
+/* ---------- Forms ---------- */
+const iso = (y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+const todayIso = iso(today.y,today.m,today.d);
+['#bDate','#pDate','#eDate'].forEach(s=>{$(s).min=todayIso;}); $('#bDate').value=todayIso;
+(function(){let o='';for(let t=11;t<=20.5;t+=0.5){const h=Math.floor(t),m=t%1?'30':'00';o+=`<option${t===18?' selected':''}>${((h+11)%12)+1}:${m} ${h<12?'AM':'PM'}</option>`;}$('#bTime').innerHTML=o;})();
+const nice = v => {const [y,m,d]=v.split('-').map(Number); return `${MONTHS[m-1]} ${d}`;};
+const PREVIEW = `<small>This is a preview, so nothing was sent.</small>`;
+$('#bookForm').addEventListener('submit',e=>{e.preventDefault();
+  const t=`Table for ${$('#bSize').value} on ${nice($('#bDate').value)} at ${$('#bTime').value}, under ${$('#bName').value}`;
+  log.books.push(t); const b=$('#bookOk'); b.hidden=false; b.innerHTML=esc(t)+'. We will text to confirm.'+PREVIEW; renderDash();});
+$('#partyForm').addEventListener('submit',e=>{e.preventDefault();
+  const t=`Party of ${$('#pSize').value} on ${nice($('#pDate').value)} for ${$('#pName').value}`;
+  log.parties.push(t); const b=$('#partyOk'); b.hidden=false; b.innerHTML=esc(t)+'. We will call you with options.'+PREVIEW; renderDash();});
+$('#msgForm').addEventListener('submit',e=>{e.preventDefault(); const b=$('#msgOk'); b.hidden=false; b.innerHTML='Message ready to send.'+PREVIEW;});
+
+/* ---------- Gallery ---------- */
+const GAL=[['spread','A table of favorites on the patio'],['pretzel',"Pub's Big Pretzel"],['nachos','Irish Pub Nachos'],['bucket','Shrimp bucket'],['salad','Strawberry chicken salad and a Guinness'],['club','Irish Club'],['mussels2','Steamed mussels'],['skewers','Grilled skewers'],['drunken','Dubliner Drunken Shrimp'],['burger','Pub burger'],['marg','Frozen margarita'],['pizza','Pizza and wine'],['shrimp','Peel and eat shrimp'],['beer','Cold ones on ice'],['bar','Behind the bar at Mountain View Pub'],['barrels','Barrels and neon at Mountain View Pub']];
+$('#gal').innerHTML = GAL.map(([f,c])=>`<button type="button" data-lb="${f}" data-cap="${esc(c)}"><img src="img/${f}.jpg" alt="${esc(c)}" loading="lazy"></button>`).join('');
+$('#gal').addEventListener('click',e=>{const b=e.target.closest('[data-lb]'); if(!b) return; const l=$('#lightbox'); l.querySelector('img').src=`img/${b.dataset.lb}.jpg`; l.querySelector('p').textContent=b.dataset.cap; l.hidden=false;});
+$('#lightbox').onclick=()=>{$('#lightbox').hidden=true;};
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') $('#lightbox').hidden=true; });
+
+/* ---------- Staff dashboard ---------- */
+function renderDash(){
+  $('#sOrders').textContent=log.orders.length; $('#sBooks').textContent=log.books.length; $('#sParties').textContent=log.parties.length;
+  const all=[...log.orders,...log.books,...log.parties];
+  if(all.length) $('#inbox').innerHTML = all.map(t=>`<li>${esc(t)}</li>`).join('');
+}
+const say = t => {const b=$('#admOk'); b.hidden=false; b.textContent=t;};
+$('#aSave').onclick=()=>{const a=$('#announce'); a.textContent=$('#aText').value; a.hidden=!$('#aText').value.trim(); say('Banner updated.');};
+$('#aHide').onclick=()=>{$('#announce').hidden=true; say('Banner hidden.');};
+$('#soSel').innerHTML = MENU.filter(i=>i.menu==='Main Menu').map(i=>`<option value="${i.id}">${esc(i.name)}</option>`).join('');
+$('#soBtn').onclick=()=>{const id=+$('#soSel').value; soldOut.has(id)?soldOut.delete(id):soldOut.add(id); renderMenu('menu'); renderMenu('order'); say(`${MENU[id].name} is now ${soldOut.has(id)?'marked sold out':'back on the menu'}.`);};
+$('#evForm').addEventListener('submit',e=>{e.preventDefault();
+  const [y,m,d]=$('#eDate').value.split('-').map(Number), [hh,mm]=$('#eTime').value.split(':').map(Number), title=$('#eTitle').value;
+  extra.push({y,m:m-1,d,title,time:`${((hh+11)%12)+1}:${String(mm).padStart(2,'0')} ${hh<12?'AM':'PM'}`,kind:$('#eKind').value});
+  view={y,m:m-1}; sel={y,m:m-1,d}; renderCal(); renderWeek(); say(`${title} added to the calendar.`); e.target.reset();});
+
+route();
+</script>
+</body>
+</html>
