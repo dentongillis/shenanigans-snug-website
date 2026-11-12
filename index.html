@@ -265,6 +265,24 @@ input,select,textarea{min-width:0}
   .tab{padding:9px 14px;font-size:.95rem}
   footer .cols{gap:22px}
 }
+@media (max-width:760px){
+  .favs{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;margin-inline:-20px;padding:4px 20px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .favs::-webkit-scrollbar{display:none}
+  .fav{flex:0 0 78%;scroll-snap-align:center}
+  .gal{columns:2;column-gap:10px}
+  .gal button{margin-bottom:10px;border-radius:10px}
+  .chips{-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+  footer a{padding:9px 0}
+  .add{padding:9px 16px;font-size:.9rem}
+  .btn-sm{padding:11px 18px}
+  .top .actions .btn-sm{padding:9px 14px}
+  .navb{width:46px;height:46px}
+  .ticks a{display:inline-block;padding:4px 0}
+  .feature img{aspect-ratio:4/3}
+  .hero h1{font-size:2.5rem}
+  .hero .biglogo{width:min(330px,88%);margin-bottom:20px}
+  .sec-head{margin-bottom:22px}
+}
 @media (max-width:420px){.f2{grid-template-columns:1fr}.stats{grid-template-columns:1fr}}
 .mobilebar [data-vieworder]{display:none}
 body.ordering .mobilebar a{display:none}
