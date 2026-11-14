@@ -203,6 +203,32 @@ section.band{padding-block:72px}
 .monthlist .ev{align-items:start}
 .monthlist .ev>div:last-child{display:grid;gap:10px}
 .calcta{margin-top:26px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.pubcal .cal-top{flex-wrap:wrap}
+.pubcal .cal-top .btn{margin-left:auto}
+.modal{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:16px;overflow:auto}
+.modal[hidden]{display:none}
+.modal .box{background:var(--paper);color:var(--ink);border-radius:20px;border:2px solid var(--ink);width:min(760px,100%);padding:24px;max-height:calc(100vh - 32px);overflow:auto}
+.modal .box h3{font-size:1.7rem}
+.modal .box>p{color:#4c5b50;margin-top:6px}
+.modal .bar{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-top:16px}
+.modal .bar label{flex:1;min-width:180px}
+.pdfprev{margin-top:16px;background:#fff;border:1.5px solid rgba(22,38,28,.3);border-radius:12px;padding:12px}
+.pdfprev .ptitle{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:2px solid var(--shamrock);padding-bottom:8px;margin-bottom:8px}
+.pdfprev .ptitle img{height:44px}
+.pdfprev .ptitle b{font-family:var(--display);font-size:1.3rem}
+.pdfprev .grid{gap:3px}
+.pdfprev .dow{color:#4c5b50}
+.pdfprev .grid.big .day{min-height:62px;border:1px solid rgba(22,38,28,.2);background:#fff;color:var(--ink);padding:3px 4px;border-radius:6px;font-size:.78rem}
+.pdfprev .grid.big div.day:hover{background:#fff}
+.pdfprev .day.today{border-color:rgba(22,38,28,.2)}
+.pdfprev .evt{font-size:.6rem;padding:2px 4px;border-radius:4px}
+@media (max-width:760px){
+  .pubcal .cal-top .btn{margin-left:0;width:100%}
+  .modal .box{padding:18px}
+  .pdfprev .grid.big .day{min-height:40px}
+  .pdfprev .evs{flex-direction:row;flex-wrap:wrap}
+  .pdfprev .evt{font-size:0;padding:0;width:7px;height:7px;border-radius:50%}
+}
 .tabs.dark .tab{border-color:var(--cream);color:var(--cream)}
 .tabs.dark .tab[aria-selected="true"]{background:var(--cream);color:var(--ink)}
 .staff-cal{display:grid;grid-template-columns:1.7fr 1fr;gap:24px;align-items:start;margin-top:22px}
@@ -434,7 +460,7 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
 <div class="page" data-page="events">
   <section class="phead" style="background-image:url(img/band.jpg)"><div class="wrap"><h1>Music, trivia and craic</h1><p>Live bands on the weekend, trivia midweek, and every big game on the screens.</p></div></section>
   <section class="band"><div class="wrap pubcal">
-    <div class="cal-top"><button class="navb" id="pubPrev" type="button" aria-label="Previous month">&#8249;</button><h3 id="pubTitle"></h3><button class="navb" id="pubNext" type="button" aria-label="Next month">&#8250;</button></div>
+    <div class="cal-top"><button class="navb" id="pubPrev" type="button" aria-label="Previous month">&#8249;</button><h3 id="pubTitle"></h3><button class="navb" id="pubNext" type="button" aria-label="Next month">&#8250;</button><button class="btn btn-ghost btn-sm" id="pdfOpen" type="button">Download calendar (PDF)</button></div>
     <div class="grid big" id="pubGrid"></div>
     <div class="monthlist" id="pubList"></div>
     <div class="legend"><span><i class="mk k-music"></i>Live music</span><span><i class="mk k-trivia"></i>Trivia</span><span><i class="mk k-sport"></i>Game day</span><span><i class="mk k-special"></i>Special event</span></div>
@@ -610,6 +636,19 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
 </div></footer>
 
 <div class="mobilebar"><button class="btn btn-amber btn-sm" type="button" data-vieworder>View your order (<span id="mbCount">0</span>)</button><a class="btn btn-amber btn-sm" href="#order">Order online</a><a class="btn btn-ghost btn-sm" href="#reservations">Book a table</a></div>
+<div class="modal" id="pdfModal" hidden role="dialog" aria-modal="true" aria-labelledby="pdfH">
+  <div class="box">
+    <h3 id="pdfH">Download the events calendar</h3>
+    <p>Pick a month and get a printable one-page calendar.</p>
+    <div class="bar">
+      <label for="pdfMonth">Month<select id="pdfMonth"></select></label>
+      <button class="btn btn-ink" id="pdfGo" type="button">Download PDF</button>
+      <button class="btn btn-line" id="pdfClose" type="button">Close</button>
+    </div>
+    <div class="ok" id="pdfMsg" hidden></div>
+    <div class="pdfprev"><div class="ptitle"><img src="img/logo.png" alt=""><b id="pdfPrevTitle"></b></div><div class="grid big" id="pdfPrevGrid"></div></div>
+  </div>
+</div>
 <div id="lightbox" hidden><div><img alt=""><p></p></div></div>
 
 <script>
@@ -848,6 +887,65 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-stab]'); i
   $$('[data-stab]').forEach(x=>x.setAttribute('aria-selected', x===b));
   $$('[data-stabp]').forEach(p=>p.hidden = p.dataset.stabp!==b.dataset.stab);});
 fillForm(null); renderAllEvents();
+
+/* ---------- Calendar PDF ---------- */
+const pdfv = {y:today.y,m:today.m};
+function renderPdfPrev(){ $('#pdfPrevTitle').textContent=`${MONTHS[pdfv.m]} ${pdfv.y}`; $('#pdfPrevGrid').innerHTML=gridHTML(pdfv,null,false); }
+$('#pdfMonth').innerHTML = Array.from({length:12},(_,i)=>{const dt=new Date(today.y,today.m+i,1); return `<option value="${dt.getFullYear()}-${dt.getMonth()}">${MONTHS[dt.getMonth()]} ${dt.getFullYear()}</option>`;}).join('');
+$('#pdfMonth').onchange=e=>{const [y,m]=e.target.value.split('-').map(Number); pdfv.y=y; pdfv.m=m; renderPdfPrev();};
+$('#pdfOpen').onclick=()=>{ const v=`${pview.y}-${pview.m}`, s=$('#pdfMonth');
+  if([...s.options].some(o=>o.value===v)){s.value=v; pdfv.y=pview.y; pdfv.m=pview.m;} else {s.selectedIndex=0; pdfv.y=today.y; pdfv.m=today.m;}
+  $('#pdfMsg').hidden=true; renderPdfPrev(); $('#pdfModal').hidden=false; s.focus(); };
+const closePdf=()=>{$('#pdfModal').hidden=true;};
+$('#pdfClose').onclick=closePdf;
+$('#pdfModal').addEventListener('click',e=>{ if(e.target.id==='pdfModal') closePdf(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closePdf(); });
+function loadJsPDF(){
+  if(window.jspdf) return Promise.resolve();
+  return new Promise((res,rej)=>{const s=document.createElement('script'); s.src='vendor/jspdf.umd.min.js'; s.onload=res; s.onerror=()=>rej(new Error('load')); document.head.appendChild(s);});
+}
+function buildCalendarPDF(y,m){
+  const doc=new window.jspdf.jsPDF({orientation:'landscape',unit:'pt',format:'letter'});
+  const W=792,H=612,M=36, INK=[22,38,28];
+  const COL={music:[240,169,59],trivia:[124,199,255],sport:[185,242,124],special:[255,122,138]};
+  const logo=document.querySelector('.top .logo img'), lh=66, lw=lh*logo.naturalWidth/logo.naturalHeight;
+  doc.addImage(logo,'PNG',M,M-8,lw,lh);
+  doc.setFont('times','bold'); doc.setFontSize(32); doc.setTextColor(...INK); doc.text(`${MONTHS[m]} ${y}`,W-M,M+24,{align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(76,91,80); doc.text('Events calendar',W-M,M+42,{align:'right'});
+  const top=M+72; doc.setDrawColor(35,160,90); doc.setLineWidth(2); doc.line(M,top-8,W-M,top-8);
+  const cw=(W-2*M)/7, hh=18;
+  doc.setFillColor(15,51,35); doc.rect(M,top,W-2*M,hh,'F'); doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'].forEach((d,i)=>doc.text(d,M+i*cw+cw/2,top+12.5,{align:'center'}));
+  const first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate(), weeks=Math.ceil((first+days)/7);
+  const gy=top+hh, footY=H-M, ch=(footY-24-gy)/weeks;
+  doc.setLineWidth(.6); doc.setDrawColor(190,190,180);
+  for(let i=0;i<weeks*7;i++){
+    const x=M+(i%7)*cw, yy0=gy+Math.floor(i/7)*ch, d=i-first+1, inMonth=d>=1&&d<=days;
+    doc.setFillColor(...(inMonth?[255,255,255]:[244,240,230])); doc.rect(x,yy0,cw,ch,'FD');
+    if(!inMonth) continue;
+    doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...INK); doc.text(String(d),x+5,yy0+12);
+    const ev=eventsOn(y,m,d); let yy=yy0+17;
+    doc.setFontSize(7.5);
+    for(let k=0;k<ev.length;k++){
+      const e=ev[k], lines=doc.splitTextToSize(`${fmtTime(e.time)}  ${e.title}`,cw-14), h=lines.length*8.6+4.5;
+      if(yy+h>yy0+ch-(k<ev.length-1?11:2)){ doc.setFont('helvetica','normal'); doc.setTextColor(76,91,80); doc.text(`+${ev.length-k} more`,x+5,yy+7); break; }
+      doc.setFillColor(...COL[e.kind]); doc.roundedRect(x+3,yy,cw-6,h,2.5,2.5,'F');
+      doc.setFont('helvetica','bold'); doc.setTextColor(18,36,26); doc.text(lines,x+7,yy+8.6);
+      yy+=h+2.5;
+    }
+  }
+  let lx=M; doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  Object.keys(KIND).forEach(k=>{ doc.setFillColor(...COL[k]); doc.roundedRect(lx,footY-9,9,9,2,2,'F'); doc.setTextColor(76,91,80); doc.text(KIND[k],lx+13,footY-1.5); lx+=13+doc.getTextWidth(KIND[k])+16; });
+  doc.setTextColor(...INK); doc.setFont('helvetica','bold'); doc.text("Shenanigan's Snug Irish Pub & Grill, Cave Creek, Arizona",W-M,footY-1.5,{align:'right'});
+  return doc;
+}
+$('#pdfGo').onclick=async()=>{
+  const msg=$('#pdfMsg'), btn=$('#pdfGo'); msg.hidden=false; msg.textContent='Building your calendar.'; btn.disabled=true;
+  try{ await loadJsPDF(); buildCalendarPDF(pdfv.y,pdfv.m).save(`Shenanigans-Snug-Events-${MONTHS[pdfv.m]}-${pdfv.y}.pdf`);
+    msg.textContent=`${MONTHS[pdfv.m]} ${pdfv.y} calendar downloaded. Check your downloads folder.`; }
+  catch(err){ msg.textContent='The PDF could not be made. Check your connection and try again.'; }
+  btn.disabled=false;
+};
 
 /* ---------- Forms ---------- */
 const iso = (y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
