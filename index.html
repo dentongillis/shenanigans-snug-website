@@ -191,6 +191,37 @@ section.band{padding-block:72px}
 .day .marks{display:flex;gap:3px;flex-wrap:wrap}
 .mk{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
 .k-music{background:var(--amber)}.k-trivia{background:#7cc7ff}.k-special{background:#ff7a8a}.k-sport{background:#b9f27c}
+.grid.big .day{aspect-ratio:auto;min-height:118px;justify-content:flex-start;gap:5px;cursor:default;padding:6px}
+.grid.big button.day{cursor:pointer}
+.grid.big div.day:hover{background:rgba(255,255,255,.03)}
+.day .num{font-weight:700}
+.day .evs{display:flex;flex-direction:column;gap:3px;width:100%}
+.evt{display:block;font-size:.74rem;line-height:1.25;font-weight:600;padding:3px 6px;border-radius:6px;color:#12241a;overflow-wrap:anywhere;text-align:left}
+.evt b{font-weight:800}
+.e-music{background:var(--amber)}.e-trivia{background:#7cc7ff}.e-sport{background:#b9f27c}.e-special{background:#ff7a8a}
+.monthlist{display:none;gap:10px;margin-top:6px}
+.monthlist .ev{align-items:start}
+.monthlist .ev>div:last-child{display:grid;gap:10px}
+.calcta{margin-top:26px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.tabs.dark .tab{border-color:var(--cream);color:var(--cream)}
+.tabs.dark .tab[aria-selected="true"]{background:var(--cream);color:var(--ink)}
+.staff-cal{display:grid;grid-template-columns:1.7fr 1fr;gap:24px;align-items:start;margin-top:22px}
+@media (max-width:980px){.staff-cal{grid-template-columns:1fr}}
+.panel ul.dayevs{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px;color:var(--cream)}
+.dayevs li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
+.dayevs small{display:block;color:var(--muted)}
+.dayevs .rowx{flex:none}
+.mini{border:1.5px solid var(--line);background:transparent;border-radius:999px;padding:6px 12px;font-size:.85rem;font-weight:700;cursor:pointer}
+.mini:hover{background:rgba(255,255,255,.1)}
+.mini.del{border-color:#ff9a8f;color:#ffb3aa}
+@media (max-width:760px){
+  .pubcal .grid,.pubcal .legend{display:none}
+  .monthlist{display:grid}
+  .staff-cal .grid.big .day{min-height:52px;padding:4px}
+  .staff-cal .evs{flex-direction:row;flex-wrap:wrap}
+  .staff-cal .evt{font-size:0;padding:0;width:8px;height:8px;border-radius:50%}
+  .dayevs li{flex-direction:column;align-items:stretch}
+}
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:.88rem;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .daybox{border:1px solid var(--line);border-radius:16px;padding:22px;background:rgba(255,255,255,.04)}
@@ -402,13 +433,12 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
 <!-- ================= EVENTS ================= -->
 <div class="page" data-page="events">
   <section class="phead" style="background-image:url(img/band.jpg)"><div class="wrap"><h1>Music, trivia and craic</h1><p>Live bands on the weekend, trivia midweek, and every big game on the screens.</p></div></section>
-  <section class="band"><div class="wrap cal-layout">
-    <div>
-      <div class="cal-top"><button class="navb" id="prevM" type="button" aria-label="Previous month">&#8249;</button><h3 id="calTitle"></h3><button class="navb" id="nextM" type="button" aria-label="Next month">&#8250;</button></div>
-      <div class="grid" id="calGrid"></div>
-      <div class="legend"><span><i class="mk k-music"></i>Live music</span><span><i class="mk k-trivia"></i>Trivia</span><span><i class="mk k-sport"></i>Game day</span><span><i class="mk k-special"></i>Special event</span></div>
-    </div>
-    <div class="daybox" id="dayBox" aria-live="polite"></div>
+  <section class="band"><div class="wrap pubcal">
+    <div class="cal-top"><button class="navb" id="pubPrev" type="button" aria-label="Previous month">&#8249;</button><h3 id="pubTitle"></h3><button class="navb" id="pubNext" type="button" aria-label="Next month">&#8250;</button></div>
+    <div class="grid big" id="pubGrid"></div>
+    <div class="monthlist" id="pubList"></div>
+    <div class="legend"><span><i class="mk k-music"></i>Live music</span><span><i class="mk k-trivia"></i>Trivia</span><span><i class="mk k-sport"></i>Game day</span><span><i class="mk k-special"></i>Special event</span></div>
+    <div class="calcta"><a class="btn btn-amber" href="#reservations">Book a table</a><a class="btn btn-ghost" href="#parties">Plan a party</a></div>
   </div></section>
 </div>
 
@@ -522,7 +552,9 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
 <!-- ================= STAFF ================= -->
 <div class="page" data-page="staff">
   <section class="band cellar"><div class="wrap">
-    <div class="sec-head"><div><h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Staff dashboard</h1><p>A preview of the owner's side. On the live site this page sits behind a secure staff sign-in, and every change saves for all visitors. In this preview, changes last until the page reloads.</p></div></div>
+    <div class="sec-head"><div><h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Staff dashboard</h1><p>A preview of the owner's side. On the live site this page sits behind a secure staff sign-in, and every change saves for all visitors. In this preview, calendar changes are saved in this browser only, and the rest resets when the page reloads.</p></div></div>
+    <div class="tabs dark" role="tablist" style="margin-bottom:22px"><button class="tab" type="button" role="tab" data-stab="overview" aria-selected="true">Overview</button><button class="tab" type="button" role="tab" data-stab="calendar" aria-selected="false">Calendar</button></div>
+    <div data-stabp="overview">
     <div class="stats">
       <div class="stat"><b id="sOrders">0</b>Online orders today</div>
       <div class="stat"><b id="sBooks">0</b>Table requests</div>
@@ -535,15 +567,34 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
         <div class="rowx" style="margin-top:10px"><button class="btn btn-amber btn-sm" id="aSave" type="button">Update banner</button><button class="btn btn-ghost btn-sm" id="aHide" type="button">Hide banner</button></div></div>
       <div class="panel"><h3>Mark a dish sold out</h3>
         <div class="rowx"><select id="soSel" aria-label="Dish" style="flex:1;min-width:200px"></select><button class="btn btn-amber btn-sm" id="soBtn" type="button">Toggle sold out</button></div></div>
-      <div class="panel"><h3>Add an event</h3>
-        <form id="evForm" style="margin-top:0">
-          <label for="eTitle">Event name<input id="eTitle" placeholder="Bagpipes and brunch" required></label>
-          <div class="f2"><label for="eDate">Date<input id="eDate" type="date" required></label><label for="eTime">Time<input id="eTime" type="time" value="19:00" required></label></div>
-          <label for="eKind">Type<select id="eKind"><option value="music">Live music</option><option value="trivia">Trivia</option><option value="sport">Game day</option><option value="special">Special event</option></select></label>
-          <button class="btn btn-amber btn-sm" type="submit">Add to calendar</button>
-        </form></div>
     </div>
     <div class="ok" id="admOk" hidden style="max-width:520px"></div>
+    </div>
+    <div data-stabp="calendar" hidden>
+      <p class="hint" style="max-width:60ch">Pick a day to see what's on it. Add a new event, or edit or delete one that's there. The Events page and the home page update straight away.</p>
+      <div class="staff-cal">
+        <div>
+          <div class="cal-top"><button class="navb" id="stPrev" type="button" aria-label="Previous month">&#8249;</button><h3 id="stTitle"></h3><button class="navb" id="stNext" type="button" aria-label="Next month">&#8250;</button></div>
+          <div class="grid big" id="stGrid"></div>
+          <div class="legend"><span><i class="mk k-music"></i>Live music</span><span><i class="mk k-trivia"></i>Trivia</span><span><i class="mk k-sport"></i>Game day</span><span><i class="mk k-special"></i>Special event</span></div>
+          <button class="mini" id="evReset" type="button" style="margin-top:16px">Reset to the example events</button>
+        </div>
+        <div class="panel" id="stSide">
+          <h3 id="stDayTitle"></h3>
+          <ul class="dayevs" id="stDayList"></ul>
+          <h3 id="evFormTitle" style="margin-top:22px">Add an event</h3>
+          <form id="evForm" style="margin-top:10px">
+            <label for="eTitle">Event name<input id="eTitle" placeholder="Bagpipes and brunch" required></label>
+            <div class="f2"><label for="eDate">Date<input id="eDate" type="date" required></label><label for="eTime">Start time (blank for all day)<input id="eTime" type="time"></label></div>
+            <label for="eKind">Type<select id="eKind"><option value="music">Live music</option><option value="trivia">Trivia</option><option value="sport">Game day</option><option value="special">Special event</option></select></label>
+            <label for="eNote">Details shown to guests<input id="eNote" placeholder="Band name, cover charge, specials"></label>
+            <label for="eRepeat" id="eRepeatWrap">Repeats<select id="eRepeat"><option value="1">Just this once</option><option value="4">Every week for 4 weeks</option><option value="8">Every week for 8 weeks</option><option value="12">Every week for 12 weeks</option></select></label>
+            <div class="rowx"><button class="btn btn-amber btn-sm" type="submit" id="evSubmit">Add to calendar</button><button class="btn btn-ghost btn-sm" type="button" id="evCancel" hidden>Cancel editing</button></div>
+          </form>
+          <div class="ok" id="calOk" hidden></div>
+        </div>
+      </div>
+    </div>
   </div></section>
 </div>
 </main>
@@ -691,54 +742,117 @@ $('#cartBox').style.scrollMarginTop='80px';
 
 /* ---------- Events ---------- */
 const KIND = {music:'Live music',trivia:'Trivia',sport:'Game day',special:'Special event'};
-const extra = [];
-function eventsOn(y,m,d){
-  const dow = new Date(y,m,d).getDay(), ev=[];
-  if(dow===3) ev.push({title:'Pub trivia night',time:'7:00 PM',kind:'trivia',note:'Teams of up to six. Winners drink for less.'});
-  if(dow===5) ev.push({title:'Friday live music',time:'7:00 PM',kind:'music',note:'Local bands, no cover.'});
-  if(dow===6) ev.push({title:'Saturday live music',time:'7:00 PM',kind:'music',note:'Local bands, no cover.'});
-  if(dow===0) ev.push({title:'Sunday football',time:'11:00 AM',kind:'sport',note:'Every game on, breakfast until noon.'});
-  if(m===2&&d===17) ev.push({title:"St. Patrick's Day party",time:'All day',kind:'special',note:'Bagpipers, Irish dancers and green beer.'});
-  extra.filter(x=>x.y===y&&x.m===m&&x.d===d).forEach(x=>ev.push(x));
-  return ev;
-}
 const today = azNow();
-let view = {y:today.y,m:today.m}, sel = {y:today.y,m:today.m,d:today.d};
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-function renderCal(){
-  $('#calTitle').textContent = `${MONTHS[view.m]} ${view.y}`;
-  const first=new Date(view.y,view.m,1).getDay(), days=new Date(view.y,view.m+1,0).getDate();
+const pad = n => String(n).padStart(2,'0');
+const dkey = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
+const fmtTime = t => { if(!t) return 'All day'; const [h,mi]=t.split(':').map(Number); return `${((h+11)%12)+1}${mi?':'+pad(mi):''} ${h<12?'AM':'PM'}`; };
+function seedEvents(){
+  const out=[]; let id=1; const end=new Date(today.y,today.m+13,0);
+  for(let dt=new Date(today.y,today.m-1,1); dt<=end; dt.setDate(dt.getDate()+1)){
+    const dow=dt.getDay(), date=dkey(dt.getFullYear(),dt.getMonth(),dt.getDate());
+    const add=(title,time,kind,note)=>out.push({id:id++,date,title,time,kind,note});
+    if(dow===3) add('Pub trivia night','19:00','trivia','Teams of up to six. Winners drink for less.');
+    if(dow===5) add('Friday live music','19:00','music','Local bands, no cover.');
+    if(dow===6) add('Saturday live music','19:00','music','Local bands, no cover.');
+    if(dow===0) add('Sunday football','11:00','sport','Every game on, breakfast until noon.');
+    if(dt.getMonth()===2&&dt.getDate()===17) add("St. Patrick's Day party",'','special','Bagpipers, Irish dancers and green beer.');
+  }
+  return out;
+}
+const EV_KEY='snug-events-v1';
+let EVENTS=null; try{EVENTS=JSON.parse(localStorage.getItem(EV_KEY));}catch(e){}
+if(!Array.isArray(EVENTS)) EVENTS=seedEvents();
+let nextId=Math.max(0,...EVENTS.map(e=>e.id))+1;
+function saveEvents(){ try{localStorage.setItem(EV_KEY,JSON.stringify(EVENTS));}catch(e){} }
+const eventsOnKey = k => EVENTS.filter(e=>e.date===k).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+const eventsOn = (y,m,d) => eventsOnKey(dkey(y,m,d));
+const todayKey = dkey(today.y,today.m,today.d);
+
+function gridHTML(v, selKey, interactive){
+  const first=new Date(v.y,v.m,1).getDay(), days=new Date(v.y,v.m+1,0).getDate();
   let h = DOW.map(d=>`<div class="dow">${d}</div>`).join('');
   for(let i=0;i<first;i++) h+=`<div class="day blank"></div>`;
   for(let d=1;d<=days;d++){
-    const ev=eventsOn(view.y,view.m,d), isT=view.y===today.y&&view.m===today.m&&d===today.d, isS=view.y===sel.y&&view.m===sel.m&&d===sel.d;
-    h+=`<button type="button" class="day${isT?' today':''}" data-d="${d}" aria-pressed="${isS}" aria-label="${MONTHS[view.m]} ${d}, ${ev.length} events">${d}<span class="marks">${ev.map(e=>`<i class="mk k-${e.kind}"></i>`).join('')}</span></button>`;
+    const k=dkey(v.y,v.m,d), ev=eventsOnKey(k), cls=`day${k===todayKey?' today':''}`;
+    const inner=`<span class="num">${d}</span><span class="evs">${ev.map(e=>`<span class="evt e-${e.kind}" title="${esc(e.note||'')}"><b>${fmtTime(e.time)}</b> ${esc(e.title)}</span>`).join('')}</span>`;
+    h += interactive
+      ? `<button type="button" class="${cls}" data-date="${k}" aria-pressed="${k===selKey}" aria-label="${MONTHS[v.m]} ${d}, ${ev.length} events">${inner}</button>`
+      : `<div class="${cls}">${inner}</div>`;
   }
-  $('#calGrid').innerHTML=h; renderDay();
+  return h;
 }
-function renderDay(){
-  const ev=eventsOn(sel.y,sel.m,sel.d), dt=new Date(sel.y,sel.m,sel.d);
-  $('#dayBox').innerHTML = `<h3>${DOW[dt.getDay()]}, ${MONTHS[sel.m]} ${sel.d}</h3>` + (ev.length
-    ? `<ul>${ev.map(e=>`<li><i class="mk k-${e.kind}"></i><div><strong>${esc(e.title)}</strong><small>${esc(e.time)}, ${KIND[e.kind]}</small>${e.note?`<small>${esc(e.note)}</small>`:''}</div></li>`).join('')}</ul>`
-    : `<p style="margin-top:12px;color:var(--muted)">Nothing on the calendar. The kitchen and the taps are still open.</p>`)
-    + `<a class="btn btn-amber btn-sm" href="#reservations" style="margin-top:18px">Book a table for this day</a>`;
+function shiftMonth(v,n){ v.m+=n; if(v.m<0){v.m=11;v.y--} if(v.m>11){v.m=0;v.y++} }
+
+/* public Events page: the whole month at a glance */
+const pview = {y:today.y,m:today.m};
+function renderPubCal(){
+  $('#pubTitle').textContent = `${MONTHS[pview.m]} ${pview.y}`;
+  $('#pubGrid').innerHTML = gridHTML(pview,null,false);
+  const days=new Date(pview.y,pview.m+1,0).getDate(); let list='';
+  for(let d=1;d<=days;d++){
+    const ev=eventsOn(pview.y,pview.m,d); if(!ev.length) continue;
+    const dt=new Date(pview.y,pview.m,d);
+    list+=`<div class="ev"><div class="date">${DOW[dt.getDay()]}<b>${d}</b></div><div>${ev.map(e=>`<div><strong>${esc(e.title)}</strong><small>${fmtTime(e.time)}, ${KIND[e.kind]}</small>${e.note?`<small>${esc(e.note)}</small>`:''}</div>`).join('')}</div></div>`;
+  }
+  $('#pubList').innerHTML = list || `<p style="color:var(--muted)">Nothing on the calendar yet for ${MONTHS[pview.m]}. Check back soon.</p>`;
 }
-$('#calGrid').addEventListener('click',e=>{const b=e.target.closest('[data-d]'); if(!b) return; sel={y:view.y,m:view.m,d:+b.dataset.d}; renderCal();});
-function shift(n){ view.m+=n; if(view.m<0){view.m=11;view.y--} if(view.m>11){view.m=0;view.y++} renderCal(); }
-$('#prevM').onclick=()=>shift(-1); $('#nextM').onclick=()=>shift(1);
+$('#pubPrev').onclick=()=>{shiftMonth(pview,-1); renderPubCal();};
+$('#pubNext').onclick=()=>{shiftMonth(pview,1); renderPubCal();};
+
 function renderWeek(){
   const out=[], base=new Date(today.y,today.m,today.d);
   for(let i=0;i<14&&out.length<4;i++){const dt=new Date(base); dt.setDate(base.getDate()+i);
     eventsOn(dt.getFullYear(),dt.getMonth(),dt.getDate()).forEach(e=>{ if(out.length<4) out.push({dt,e}); });}
-  $('#weekList').innerHTML = out.map(({dt,e})=>`<div class="ev"><div class="date">${DOW[dt.getDay()]}<b>${dt.getDate()}</b></div><div><strong>${esc(e.title)}</strong><small>${esc(e.time)}, ${KIND[e.kind]}</small></div></div>`).join('');
+  $('#weekList').innerHTML = out.map(({dt,e})=>`<div class="ev"><div class="date">${DOW[dt.getDay()]}<b>${dt.getDate()}</b></div><div><strong>${esc(e.title)}</strong><small>${fmtTime(e.time)}, ${KIND[e.kind]}</small></div></div>`).join('')
+    || `<p style="color:var(--muted)">Nothing on the calendar for the next two weeks.</p>`;
 }
-renderCal(); renderWeek();
+
+/* staff calendar: select a day, add, edit, delete */
+const sview = {y:today.y,m:today.m}; let ssel = todayKey, editing = null;
+const niceKey = k => {const [y,m,d]=k.split('-').map(Number); const dt=new Date(y,m-1,d); return `${DOW[dt.getDay()]}, ${MONTHS[m-1]} ${d}`;};
+function renderStaffCal(){
+  $('#stTitle').textContent = `${MONTHS[sview.m]} ${sview.y}`;
+  $('#stGrid').innerHTML = gridHTML(sview,ssel,true);
+  const ev=eventsOnKey(ssel);
+  $('#stDayTitle').textContent = niceKey(ssel);
+  $('#stDayList').innerHTML = ev.length ? ev.map(e=>`<li><div><strong>${esc(e.title)}</strong><small>${fmtTime(e.time)}, ${KIND[e.kind]}${e.note?'. '+esc(e.note):''}</small></div><div class="rowx"><button class="mini" type="button" data-edit="${e.id}">Edit</button><button class="mini del" type="button" data-del="${e.id}">Delete</button></div></li>`).join('')
+    : `<li style="border-style:dashed;color:var(--muted)">Nothing on this day yet. Add an event below.</li>`;
+  $('#evFormTitle').textContent = editing ? 'Edit this event' : 'Add an event';
+  $('#evSubmit').textContent = editing ? 'Save changes' : 'Add to calendar';
+  $('#evCancel').hidden = !editing; $('#eRepeatWrap').hidden = !!editing;
+}
+function fillForm(e){ $('#eTitle').value=e?e.title:''; $('#eDate').value=e?e.date:ssel; $('#eTime').value=e?e.time:'19:00'; $('#eKind').value=e?e.kind:'music'; $('#eNote').value=e?(e.note||''):''; $('#eRepeat').value='1'; }
+function renderAllEvents(){ renderPubCal(); renderWeek(); renderStaffCal(); }
+const calSay = t => {const b=$('#calOk'); b.hidden=false; b.textContent=t;};
+$('#stPrev').onclick=()=>{shiftMonth(sview,-1); renderStaffCal();};
+$('#stNext').onclick=()=>{shiftMonth(sview,1); renderStaffCal();};
+$('#stGrid').addEventListener('click',e=>{const b=e.target.closest('[data-date]'); if(!b) return; ssel=b.dataset.date; editing=null; fillForm(null); renderStaffCal();});
+$('#stDayList').addEventListener('click',e=>{
+  const ed=e.target.closest('[data-edit]'), dl=e.target.closest('[data-del]');
+  if(ed){ editing=+ed.dataset.edit; fillForm(EVENTS.find(x=>x.id===editing)); renderStaffCal(); $('#eTitle').focus(); }
+  if(dl){ const id=+dl.dataset.del, ev=EVENTS.find(x=>x.id===id); EVENTS=EVENTS.filter(x=>x.id!==id); if(editing===id){editing=null; fillForm(null);} saveEvents(); renderAllEvents(); calSay(`${ev.title} removed from ${niceKey(ev.date)}.`); }
+});
+$('#evCancel').onclick=()=>{editing=null; fillForm(null); renderStaffCal();};
+$('#evForm').addEventListener('submit',e=>{e.preventDefault();
+  const data={title:$('#eTitle').value.trim(),date:$('#eDate').value,time:$('#eTime').value,kind:$('#eKind').value,note:$('#eNote').value.trim()};
+  if(editing){ Object.assign(EVENTS.find(x=>x.id===editing),data); calSay(`${data.title} updated.`); }
+  else{ const n=+$('#eRepeat').value, [y,m,d]=data.date.split('-').map(Number);
+    for(let i=0;i<n;i++){const dt=new Date(y,m-1,d+7*i); EVENTS.push({...data,id:nextId++,date:dkey(dt.getFullYear(),dt.getMonth(),dt.getDate())});}
+    calSay(n>1?`${data.title} added for ${n} weeks, starting ${niceKey(data.date)}.`:`${data.title} added to ${niceKey(data.date)}.`); }
+  const [y,m]=data.date.split('-').map(Number); sview.y=y; sview.m=m-1; ssel=data.date; editing=null;
+  saveEvents(); fillForm(null); renderAllEvents();});
+$('#evReset').onclick=()=>{ EVENTS=seedEvents(); nextId=Math.max(0,...EVENTS.map(e=>e.id))+1; try{localStorage.removeItem(EV_KEY);}catch(e){} editing=null; fillForm(null); renderAllEvents(); calSay('Calendar reset to the example events.'); };
+document.addEventListener('click',e=>{const b=e.target.closest('[data-stab]'); if(!b) return;
+  $$('[data-stab]').forEach(x=>x.setAttribute('aria-selected', x===b));
+  $$('[data-stabp]').forEach(p=>p.hidden = p.dataset.stabp!==b.dataset.stab);});
+fillForm(null); renderAllEvents();
 
 /* ---------- Forms ---------- */
 const iso = (y,m,d)=>`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 const todayIso = iso(today.y,today.m,today.d);
-['#bDate','#pDate','#eDate'].forEach(s=>{$(s).min=todayIso;}); $('#bDate').value=todayIso;
+['#bDate','#pDate'].forEach(s=>{$(s).min=todayIso;}); $('#bDate').value=todayIso;
 (function(){let o='';for(let t=11;t<=20.5;t+=0.5){const h=Math.floor(t),m=t%1?'30':'00';o+=`<option${t===18?' selected':''}>${((h+11)%12)+1}:${m} ${h<12?'AM':'PM'}</option>`;}$('#bTime').innerHTML=o;})();
 const nice = v => {const [y,m,d]=v.split('-').map(Number); return `${MONTHS[m-1]} ${d}`;};
 const PREVIEW = `<small>This is a preview, so nothing was sent.</small>`;
@@ -775,10 +889,6 @@ $('#soBtn').onclick=()=>{const id=+$('#soSel').value; soldOut.has(id)?soldOut.de
 $$('.chips').forEach(c=>c.addEventListener('scroll',chipState,{passive:true}));
 window.addEventListener('resize',chipState);
 renderMenu('menu'); renderMenu('order'); say(`${MENU[id].name} is now ${soldOut.has(id)?'marked sold out':'back on the menu'}.`);};
-$('#evForm').addEventListener('submit',e=>{e.preventDefault();
-  const [y,m,d]=$('#eDate').value.split('-').map(Number), [hh,mm]=$('#eTime').value.split(':').map(Number), title=$('#eTitle').value;
-  extra.push({y,m:m-1,d,title,time:`${((hh+11)%12)+1}:${String(mm).padStart(2,'0')} ${hh<12?'AM':'PM'}`,kind:$('#eKind').value});
-  view={y,m:m-1}; sel={y,m:m-1,d}; renderCal(); renderWeek(); say(`${title} added to the calendar.`); e.target.reset();});
 
 route();
 </script>
