@@ -221,7 +221,9 @@ section.band{padding-block:72px}
 .modal .box>p{color:#4c5b50;margin-top:6px}
 .modal .bar{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-top:16px}
 .modal .bar label{flex:1;min-width:180px}
-.pdfprev{margin-top:16px;background:#fff;border:1.5px solid rgba(22,38,28,.3);border-radius:12px;padding:12px}
+.pdfprev{margin-top:16px;background:#fff;border:1.5px solid rgba(22,38,28,.3);border-radius:12px;padding:12px;overflow:hidden}
+.pdfprev .sheet{width:700px;transform-origin:0 0}
+.pdfprev .evt b{display:inline}
 .pdfprev .ptitle{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:2px solid var(--shamrock);padding-bottom:8px;margin-bottom:8px}
 .pdfprev .ptitle img{height:44px}
 .pdfprev .ptitle b{font-family:var(--display);font-size:1.3rem}
@@ -234,9 +236,6 @@ section.band{padding-block:72px}
 @media (max-width:760px){
   .pubcal .cal-top .btn{margin-left:0;width:100%}
   .modal .box{padding:18px}
-  .pdfprev .grid.big .day{min-height:40px}
-  .pdfprev .evs{flex-direction:row;flex-wrap:wrap}
-  .pdfprev .evt{font-size:0;padding:0;width:7px;height:7px;border-radius:50%}
 }
 .tabs.dark .tab{border-color:var(--cream);color:var(--cream)}
 .tabs.dark .tab[aria-selected="true"]{background:var(--cream);color:var(--ink)}
@@ -662,14 +661,14 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
 <div class="modal" id="pdfModal" hidden role="dialog" aria-modal="true" aria-labelledby="pdfH">
   <div class="box">
     <h3 id="pdfH">Download the events calendar</h3>
-    <p>Pick a month and get a printable one-page calendar.</p>
+    <p>Pick a month and get a printable one-page calendar with every event's time, name and details.</p>
     <div class="bar">
       <label for="pdfMonth">Month<select id="pdfMonth"></select></label>
       <button class="btn btn-ink" id="pdfGo" type="button">Download PDF</button>
       <button class="btn btn-line" id="pdfClose" type="button">Close</button>
     </div>
     <div class="ok" id="pdfMsg" hidden></div>
-    <div class="pdfprev"><div class="ptitle"><img src="img/logo.png" alt=""><b id="pdfPrevTitle"></b></div><div class="grid big" id="pdfPrevGrid"></div></div>
+    <div class="pdfprev" id="pdfPrev"><div class="sheet" id="pdfSheet"><div class="ptitle"><img src="img/logo.png" alt=""><b id="pdfPrevTitle"></b></div><div class="grid big" id="pdfPrevGrid"></div></div></div>
   </div>
 </div>
 <div id="lightbox" hidden><div><img alt=""><p></p></div></div>
@@ -928,12 +927,15 @@ fillForm(null); renderAllEvents();
 
 /* ---------- Calendar PDF ---------- */
 const pdfv = {y:today.y,m:today.m};
-function renderPdfPrev(){ $('#pdfPrevTitle').textContent=`${MONTHS[pdfv.m]} ${pdfv.y}`; $('#pdfPrevGrid').innerHTML=gridHTML(pdfv,null,false); }
+function fitPdfPrev(){ const box=$('#pdfPrev'), sh=$('#pdfSheet'); if(!box.clientWidth) return;
+  const s=Math.min(1,(box.clientWidth-24)/700); sh.style.transform=`scale(${s})`; box.style.height=(sh.offsetHeight*s+24)+'px'; }
+function renderPdfPrev(){ $('#pdfPrevTitle').textContent=`${MONTHS[pdfv.m]} ${pdfv.y}`; $('#pdfPrevGrid').innerHTML=gridHTML(pdfv,null,false); fitPdfPrev(); }
+window.addEventListener('resize',fitPdfPrev);
 $('#pdfMonth').innerHTML = Array.from({length:12},(_,i)=>{const dt=new Date(today.y,today.m+i,1); return `<option value="${dt.getFullYear()}-${dt.getMonth()}">${MONTHS[dt.getMonth()]} ${dt.getFullYear()}</option>`;}).join('');
 $('#pdfMonth').onchange=e=>{const [y,m]=e.target.value.split('-').map(Number); pdfv.y=y; pdfv.m=m; renderPdfPrev();};
 $('#pdfOpen').onclick=()=>{ const v=`${pview.y}-${pview.m}`, s=$('#pdfMonth');
   if([...s.options].some(o=>o.value===v)){s.value=v; pdfv.y=pview.y; pdfv.m=pview.m;} else {s.selectedIndex=0; pdfv.y=today.y; pdfv.m=today.m;}
-  $('#pdfMsg').hidden=true; renderPdfPrev(); $('#pdfModal').hidden=false; s.focus(); };
+  $('#pdfMsg').hidden=true; $('#pdfModal').hidden=false; renderPdfPrev(); s.focus(); };
 const closePdf=()=>{$('#pdfModal').hidden=true;};
 $('#pdfClose').onclick=closePdf;
 $('#pdfModal').addEventListener('click',e=>{ if(e.target.id==='pdfModal') closePdf(); });
@@ -964,11 +966,18 @@ function buildCalendarPDF(y,m){
     doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(...INK); doc.text(String(d),x+5,yy0+12);
     const ev=eventsOn(y,m,d); let yy=yy0+17;
     doc.setFontSize(7.5);
-    for(let k=0;k<ev.length;k++){
-      const e=ev[k], lines=doc.splitTextToSize(`${fmtTime(e.time)}  ${e.title}`,cw-14), h=lines.length*8.6+4.5;
-      if(yy+h>yy0+ch-(k<ev.length-1?11:2)){ doc.setFont('helvetica','normal'); doc.setTextColor(76,91,80); doc.text(`+${ev.length-k} more`,x+5,yy+7); break; }
-      doc.setFillColor(...COL[e.kind]); doc.roundedRect(x+3,yy,cw-6,h,2.5,2.5,'F');
-      doc.setFont('helvetica','bold'); doc.setTextColor(18,36,26); doc.text(lines,x+7,yy+8.6);
+    const TW=cw-14, room=yy0+ch-2-yy;
+    const blocks=ev.map(e=>{ doc.setFont('helvetica','bold'); doc.setFontSize(7.5); const tl=doc.splitTextToSize(`${fmtTime(e.time)}  ${e.title}`,TW);
+      doc.setFont('helvetica','normal'); doc.setFontSize(6.5); const nl=e.note?doc.splitTextToSize(e.note,TW):[]; return {e,tl,nl}; });
+    const hOf=(b,notes)=>b.tl.length*8.6+4.5+(notes&&b.nl.length?b.nl.length*7.4+1:0);
+    const total=n=>blocks.reduce((s,b)=>s+hOf(b,n)+2.5,0);
+    const notes=total(true)<=room;
+    for(let k=0;k<blocks.length;k++){
+      const b=blocks[k], h=hOf(b,notes);
+      if(yy+h>yy0+ch-(k<blocks.length-1?11:2)){ doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(76,91,80); doc.text(`+${blocks.length-k} more`,x+5,yy+7); break; }
+      doc.setFillColor(...COL[b.e.kind]); doc.roundedRect(x+3,yy,cw-6,h,2.5,2.5,'F');
+      doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(18,36,26); doc.text(b.tl,x+7,yy+8.6);
+      if(notes&&b.nl.length){ doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.text(b.nl,x+7,yy+b.tl.length*8.6+7.6); }
       yy+=h+2.5;
     }
   }
