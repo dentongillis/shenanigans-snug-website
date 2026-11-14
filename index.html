@@ -241,7 +241,9 @@ section.band{padding-block:72px}
 .tabs.dark .tab{border-color:var(--cream);color:var(--cream)}
 .tabs.dark .tab[aria-selected="true"]{background:var(--cream);color:var(--ink)}
 .staff-cal{display:grid;grid-template-columns:1.7fr 1fr;gap:24px;align-items:start;margin-top:22px}
-@media (max-width:980px){.staff-cal{grid-template-columns:1fr}}
+.staff-cal>#stSide{grid-column:2;grid-row:1 / span 2}
+.staff-cal>.types-col{grid-column:1;grid-row:2}
+@media (max-width:980px){.staff-cal{grid-template-columns:1fr}.staff-cal>#stSide,.staff-cal>.types-col{grid-column:auto;grid-row:auto}}
 .panel ul.dayevs{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px;color:var(--cream)}
 .dayevs li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border:1px solid var(--line);border-radius:12px}
 .dayevs small{display:block;color:var(--muted)}
@@ -630,14 +632,7 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
           <div class="cal-top"><button class="navb" id="stPrev" type="button" aria-label="Previous month">&#8249;</button><h3 id="stTitle"></h3><button class="navb" id="stNext" type="button" aria-label="Next month">&#8250;</button></div>
           <div class="grid big" id="stGrid"></div>
           <div class="legend" data-legend></div>
-          <div class="panel" style="margin-top:20px">
-            <h3>Event types</h3>
-            <p class="hint">Rename a type or pick a new color and the calendar, the Events page and the PDF update to match.</p>
-            <ul class="types" id="typeList"></ul>
-            <div class="rowx" style="margin-top:12px"><button class="btn btn-amber btn-sm" id="typeAdd" type="button">Add a type</button></div>
-            <div class="ok" id="typeOk" hidden></div>
-          </div>
-          <button class="mini" id="evReset" type="button" style="margin-top:16px">Reset to the example events and types</button>
+
         </div>
         <div class="panel" id="stSide">
           <h3 id="stDayTitle"></h3>
@@ -652,6 +647,16 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
             <div class="rowx"><button class="btn btn-amber btn-sm" type="submit" id="evSubmit">Add to calendar</button><button class="btn btn-ghost btn-sm" type="button" id="evCancel" hidden>Cancel editing</button></div>
           </form>
           <div class="ok" id="calOk" hidden></div>
+        </div>
+        <div class="types-col">
+          <div class="panel" >
+            <h3>Event types</h3>
+            <p class="hint">Rename a type or pick a new color and the calendar, the Events page and the PDF update to match.</p>
+            <ul class="types" id="typeList"></ul>
+            <div class="rowx" style="margin-top:12px"><button class="btn btn-amber btn-sm" id="typeAdd" type="button">Add a type</button></div>
+            <div class="ok" id="typeOk" hidden></div>
+          </div>
+          <button class="mini" id="evReset" type="button" style="margin-top:16px">Reset to the example events and types</button>
         </div>
       </div>
     </div>
