@@ -886,20 +886,85 @@ const DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const pad = n => String(n).padStart(2,'0');
 const dkey = (y,m,d) => `${y}-${pad(m+1)}-${pad(d)}`;
 const fmtTime = t => { if(!t) return 'All day'; const [h,mi]=t.split(':').map(Number); return `${((h+11)%12)+1}${mi?':'+pad(mi):''} ${h<12?'AM':'PM'}`; };
+
+/* Real events for specific months, keyed by 'YYYY-MM' */
+const REAL_EVENTS = {
+  '2026-11': [
+    // Recurring: Martini Social Club with Steve Howes, Tuesdays 4-7 PM
+    {date:'2026-11-03',title:'Martini Social Club with Steve Howes',time:'16:00',kind:'special',note:'Until 7 PM. $7 martinis.'},
+    {date:'2026-11-10',title:'Martini Social Club with Steve Howes',time:'16:00',kind:'special',note:'Until 7 PM. $7 martinis.'},
+    {date:'2026-11-17',title:'Martini Social Club with Steve Howes',time:'16:00',kind:'special',note:'Until 7 PM. $7 martinis.'},
+    {date:'2026-11-24',title:'Martini Social Club with Steve Howes',time:'16:00',kind:'special',note:'Until 7 PM. $7 martinis.'},
+    // Recurring: Arizona Bluegrass Jam, Wednesdays starting 5:30 PM
+    {date:'2026-11-04',title:'Arizona Bluegrass Jam',time:'17:30',kind:'music',note:'Live bluegrass music.'},
+    {date:'2026-11-11',title:'Arizona Bluegrass Jam',time:'17:30',kind:'music',note:'Live bluegrass music.'},
+    {date:'2026-11-18',title:'Arizona Bluegrass Jam',time:'17:30',kind:'music',note:'Live bluegrass music.'},
+    // Nov 25 has Turkey Bowl instead of regular Bluegrass Jam
+    // Sun Nov 1
+    {date:'2026-11-01',title:'Street Player',time:'14:00',kind:'music',note:'Until 6 PM.'},
+    // Thu Nov 5
+    {date:'2026-11-05',title:'Kevin Shepherd',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Fri Nov 6
+    {date:'2026-11-06',title:'Evertone',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Sat Nov 7: ND vs Miami
+    {date:'2026-11-07',title:'Notre Dame vs. Miami',time:'17:30',kind:'sport',note:'College football kickoff.'},
+    // Sun Nov 8
+    {date:'2026-11-08',title:'J David Sloan & Friends',time:'14:00',kind:'music',note:'Until 6 PM.'},
+    // Thu Nov 12
+    {date:'2026-11-12',title:'Kevin Shepherd',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Fri Nov 13
+    {date:'2026-11-13',title:'Dave Mensch',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Sat Nov 14: ND vs Boston College + Rhonda Street Band
+    {date:'2026-11-14',title:'Notre Dame vs. Boston College',time:'13:30',kind:'sport',note:'College football kickoff.'},
+    {date:'2026-11-14',title:'Rhonda Street Band',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Sun Nov 15
+    {date:'2026-11-15',title:'J David Sloan & The Lucky Buckle Band',time:'14:00',kind:'music',note:'Until 6 PM.'},
+    // Thu Nov 19
+    {date:'2026-11-19',title:'J David Sloan & Friends',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Fri Nov 20
+    {date:'2026-11-20',title:'Rick & The Ramblerz',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Sat Nov 21: ND vs SMU
+    {date:'2026-11-21',title:'Notre Dame vs. SMU',time:'17:30',kind:'sport',note:'College football kickoff.'},
+    // Sun Nov 22
+    {date:'2026-11-22',title:'Foggy Bottom Boys',time:'14:00',kind:'music',note:'Until 6 PM.'},
+    // Wed Nov 25: 8th Annual Turkey Bowl + Danny Walls & The Canyon Walls Band
+    {date:'2026-11-25',title:'8th Annual Turkey Bowl',time:'12:00',kind:'special',note:'Thanksgiving eve celebration!'},
+    {date:'2026-11-25',title:'Danny Walls & The Canyon Walls Band',time:'17:00',kind:'music',note:'Until 9 PM. Turkey Bowl live music.'},
+    // Thu Nov 26: Closed for Thanksgiving
+    {date:'2026-11-26',title:'Closed for Thanksgiving',time:'',kind:'special',note:'Happy Thanksgiving! See you Friday.'},
+    // Fri Nov 27
+    {date:'2026-11-27',title:'Kevin Shepherd',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Sat Nov 28: Cave Creek Legends + ND vs Syracuse
+    {date:'2026-11-28',title:'Notre Dame vs. Syracuse',time:'',kind:'sport',note:'College football. Kickoff time TBA.'},
+    {date:'2026-11-28',title:'Cave Creek Legends',time:'17:00',kind:'music',note:'Until 9 PM.'},
+    // Sun Nov 29
+    {date:'2026-11-29',title:'Arizona Ave',time:'14:00',kind:'music',note:'Until 6 PM.'},
+  ],
+};
+const realMonthKey = (y,m) => `${y}-${pad(m+1)}`;
+const hasRealEvents = (y,m) => !!REAL_EVENTS[realMonthKey(y,m)];
+const getRealEvents = (y,m) => REAL_EVENTS[realMonthKey(y,m)] || [];
+
 function seedEvents(){
   const out=[]; let id=1; const end=new Date(today.y,today.m+13,0);
   for(let dt=new Date(today.y,today.m-1,1); dt<=end; dt.setDate(dt.getDate()+1)){
-    const dow=dt.getDay(), date=dkey(dt.getFullYear(),dt.getMonth(),dt.getDate());
+    const y=dt.getFullYear(), m=dt.getMonth();
+    if(hasRealEvents(y,m)){ dt.setMonth(m+1,0); continue; } // skip months with real events
+    const dow=dt.getDay(), date=dkey(y,m,dt.getDate());
     const add=(title,time,kind,note)=>out.push({id:id++,date,title,time,kind,note});
     if(dow===3) add('Pub trivia night','19:00','trivia','Teams of up to six. Winners drink for less.');
     if(dow===5) add('Friday live music','19:00','music','Local bands, no cover.');
     if(dow===6) add('Saturday live music','19:00','music','Local bands, no cover.');
     if(dow===0) add('Sunday football','11:00','sport','Every game on, breakfast until noon.');
-    if(dt.getMonth()===2&&dt.getDate()===17) add("St. Patrick's Day party",'','special','Bagpipers, Irish dancers and green beer.');
+    if(m===2&&dt.getDate()===17) add("St. Patrick's Day party",'','special','Bagpipers, Irish dancers and green beer.');
   }
+  // Add real events for all months that have them
+  Object.keys(REAL_EVENTS).forEach(key => {
+    getRealEvents(...key.split('-').map((v,i)=>i===1?+v-1:+v)).forEach(e => out.push({...e, id: id++}));
+  });
   return out;
 }
-const EV_KEY='snug-events-v1';
+const EV_KEY='snug-events-v2';
 let EVENTS=null; try{EVENTS=JSON.parse(localStorage.getItem(EV_KEY));}catch(e){}
 if(!Array.isArray(EVENTS)) EVENTS=seedEvents();
 let nextId=Math.max(0,...EVENTS.map(e=>e.id))+1;
