@@ -18,7 +18,7 @@ img/                    Logo (logo.png) and 20 food/bar photos (JPG, ~800px, fro
 vendor/jspdf.umd.min.js jsPDF 2.5.1, vendored (used only for the Events PDF download)
 favicon.png             Browser tab icon (crop of the logo shamrock)
 vercel.json             Static hosting config: cleanUrls + 1-week cache on /img
-README.md               Short human readme (partly out of date: see "Known issues")
+README.md               Short human readme: what the site is, deploying, staff dashboard, limits
 ```
 
 No `package.json`, no build step, no framework, no dependencies to install.
@@ -179,7 +179,6 @@ Look and feel: an Irish pub in the Arizona desert. Dark bottle-green "rooms" alt
 - **The staff dashboard has no login.** Anyone can open `#staff`; changes only affect their own browser.
 - **Forms and checkout send nothing.** Each shows a "This is a preview" note.
 - **Example content:** hours, events, story text and contact details are placeholders until the owners confirm them. Photos belong to Mountain View Pub.
-- **README.md is out of date:** it says staff changes reset on reload, but menu, events and event types now persist per browser.
 - **Hash routing:** pages are `#name`, so they share one URL for SEO purposes and cannot have their own meta tags.
 - On phones, long event titles wrap tightly inside the month grid; the List view is the readable alternative.
 
