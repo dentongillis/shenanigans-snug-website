@@ -240,7 +240,8 @@ section.band{padding-block:72px}
 .fb-cal span{display:block;background:var(--ink);color:var(--paper);font-size:.72rem;font-weight:700;padding:3px 0}
 .fb-cal b{display:block;font-family:var(--display);font-size:1.7rem;line-height:1.15;padding:2px 0 3px}
 .fb-title{font-family:var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:800;font-size:1.4rem;line-height:1.1;text-wrap:balance}
-.fb-when{font-weight:700;font-size:.92rem;color:#0d6a36;display:flex;align-items:center;gap:6px}
+.fb-when{font-weight:700;font-size:.92rem;line-height:1.35;color:#0d6a36;display:flex;align-items:flex-start;gap:6px}
+.fb-when svg{flex:none;margin-top:2px}
 .fb-note{color:#3d4b41;font-size:1rem;line-height:1.55;padding-top:12px;border-top:1px solid rgba(22,38,28,.18);overflow:auto;flex:1;min-height:0}
 .fb-acts{display:flex;flex-wrap:wrap;gap:8px}
 .fb-acts .btn{padding:9px 14px;font-size:.86rem}
@@ -793,7 +794,8 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
               </div>
             </div>
             <label for="flyTitle">Event title<input id="flyTitle" required maxlength="80" placeholder="Rhonda Street Band"></label>
-            <div class="f2"><label for="flyDate">Date<input id="flyDate" type="date" required></label><label for="flyTime">Start time (blank for all day)<input id="flyTime" type="time"></label></div>
+            <div class="f2"><label for="flyDate">Start date<input id="flyDate" type="date" required></label><label for="flyTime">Start time (blank for all day)<input id="flyTime" type="time"></label></div>
+            <div class="f2"><label for="flyEnd">End date (optional)<input id="flyEnd" type="date"></label><label for="flyEndTime">End time (optional)<input id="flyEndTime" type="time"></label></div>
             <label for="flyNote">Details<textarea id="flyNote" rows="3" maxlength="400" placeholder="5 to 9 PM on the patio. No cover."></textarea></label>
             <div class="rowx"><button class="btn btn-amber btn-sm" type="submit" id="flySubmit">Add flyer</button><button class="btn btn-ghost btn-sm" type="button" id="flyCancel" hidden>Cancel editing</button></div>
             <div class="ok" id="flyOk" hidden></div>
@@ -1187,29 +1189,47 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-stab]'); i
 renderTypeList(); renderTypeUses(); fillForm(null); renderAllEvents();
 
 /* ---------- Event flyers ---------- */
-/* Flyers that ship with the website (shown to every visitor). Put the image in img/flyers/ and add an entry, e.g.
-   {id:'f-2026-11-14-rhonda', img:'img/flyers/rhonda-street-band.jpg', title:'Rhonda Street Band', date:'2026-11-14', time:'17:00', note:'Until 9 PM.'} */
-const FLYER_SEED = [];
-const FLY_KEY='snug-flyers-v1';
+/* Flyers that ship with the website and show for every visitor. Put the image in img/flyers/ and add an entry.
+   Fields: id (unique text starting "seed-"), img, title, date (start), time, end (optional last day), endTime (optional), note.
+   A seed flyer always appears unless staff delete it in that browser (its id is then kept under FLY_GONE_KEY). */
+const FLYER_SEED = [
+  {id:'seed-turkey-bowl-2026', img:'img/flyers/turkey-bowl-2026.jpg', title:'8th Annual Turkey Bowl', date:'2026-11-18', time:'10:00', end:'2026-11-29', endTime:'22:00',
+   note:'Sign up now! Turkey bowling starts at noon on Wednesday, November 25. $80 per team, 4 players per team, and free team T-shirts. Live music by Danny Walls & The Canyon Walls Band from 5 to 9 PM. Fun for the whole family!'},
+];
+const FLY_KEY='snug-flyers-v1', FLY_GONE_KEY='snug-flyers-removed-v1';
 let FLYERS=null; try{FLYERS=JSON.parse(localStorage.getItem(FLY_KEY));}catch(e){}
-if(!Array.isArray(FLYERS)) FLYERS=FLYER_SEED.map(f=>({...f}));
-function saveFlyers(){ try{localStorage.setItem(FLY_KEY,JSON.stringify(FLYERS)); return true;}catch(e){ return false; } }
+if(!Array.isArray(FLYERS)) FLYERS=[];
+let FLY_GONE=[]; try{const g=JSON.parse(localStorage.getItem(FLY_GONE_KEY)); if(Array.isArray(g)) FLY_GONE=g;}catch(e){}
+FLYER_SEED.forEach(s=>{ if(!FLYERS.some(f=>f.id===s.id) && !FLY_GONE.includes(s.id)) FLYERS.push({...s}); });
+function saveFlyers(){ try{localStorage.setItem(FLY_KEY,JSON.stringify(FLYERS)); localStorage.setItem(FLY_GONE_KEY,JSON.stringify(FLY_GONE)); return true;}catch(e){ return false; } }
 const byWhen=(a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''));
-const upcomingFlyers=()=>FLYERS.filter(f=>f.date>=todayKey).sort(byWhen);
+const lastDay=f=>(f.end&&f.end>f.date)?f.end:f.date;
+const isPast=f=>lastDay(f)<todayKey;
+const upcomingFlyers=()=>FLYERS.filter(f=>!isPast(f)).sort(byWhen);
+const keyParts=k=>{const [y,m,d]=k.split('-').map(Number); return {y,m,d,dt:new Date(y,m-1,d)};};
+function flyDates(f, long){
+  const a=keyParts(f.date), mon=x=>MONTHS[x.m-1].slice(0,3);
+  if(lastDay(f)===f.date) return long?`${DOW[a.dt.getDay()]}, ${MONTHS[a.m-1]} ${a.d}`:`${DOW[a.dt.getDay()]}, ${mon(a)} ${a.d}`;
+  const b=keyParts(f.end);
+  if(!long) return a.m===b.m ? `${mon(a)} ${a.d} to ${b.d}` : `${mon(a)} ${a.d} to ${mon(b)} ${b.d}`;
+  return `${DOW[a.dt.getDay()]}, ${mon(a)} ${a.d} to ${DOW[b.dt.getDay()]}, ${mon(b)} ${b.d}`;
+}
+const flyTimes=f=>f.time&&f.endTime?`${fmtTime(f.time)} to ${fmtTime(f.endTime)}`:fmtTime(f.time);
+const flyDay=f=>(f.date<todayKey&&!isPast(f))?todayKey:f.date;
 const FLIP_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>';
 const CLOCK_ICON='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 let flyShowAll=false;
 const wideCal=matchMedia('(min-width:981px)');
 function flyerCard(f){
-  const [y,m,d]=f.date.split('-').map(Number), dt=new Date(y,m-1,d), short=`${DOW[dt.getDay()]}, ${MONTHS[m-1].slice(0,3)} ${d}`;
+  const {m,d}=keyParts(f.date), short=flyDates(f,false), day=flyDay(f);
   return `<div class="flyer" tabindex="0" data-flyer="${esc(f.id)}">
     <div class="flyer-inner">
       <div class="fface ffront"><div class="blur" style="background-image:url('${f.img}')"></div><img src="${f.img}" alt="Flyer for ${esc(f.title)}" loading="lazy"><span class="fdate">${short}</span><span class="fflip">${FLIP_ICON}</span></div>
       <div class="fface fback">
         <div class="fb-top"><div class="fb-cal"><span>${MONTHS[m-1].slice(0,3)}</span><b>${d}</b></div><div class="fb-title">${esc(f.title)}</div></div>
-        <div class="fb-when">${CLOCK_ICON}${DOW[dt.getDay()]}, ${MONTHS[m-1]} ${d} &middot; ${fmtTime(f.time)}</div>
+        <div class="fb-when">${CLOCK_ICON}<span>${flyDates(f,true)}<br>${flyTimes(f)}</span></div>
         <div class="fb-note">${f.note?esc(f.note):'See you at the Snug.'}</div>
-        <div class="fb-acts"><a class="btn btn-ink" href="#reservations" data-bookday="${f.date}">Book a table</a><button class="btn btn-line" type="button" data-showday="${f.date}">See the day</button></div>
+        <div class="fb-acts"><a class="btn btn-ink" href="#reservations" data-bookday="${day}">Book a table</a><button class="btn btn-line" type="button" data-showday="${day}">See the day</button></div>
       </div>
     </div></div>`;
 }
@@ -1237,15 +1257,15 @@ wideCal.addEventListener('change',()=>{ if(!flyShowAll) renderFlyers(); });
 let flyEditing=null, flyImg='';
 const flySay=m=>{const b=$('#flyOk'); b.hidden=false; b.textContent=m;};
 function renderFlyAdmin(){
-  const all=[...FLYERS].sort(byWhen), past=all.filter(f=>f.date<todayKey).length;
-  $('#flyList').innerHTML = all.length ? all.map(f=>`<li class="${f.date<todayKey?'past':''}" data-fid="${esc(f.id)}"><img src="${f.img}" alt=""><div><strong>${esc(f.title)}</strong>${f.date<todayKey?'<span class="tag">Past</span>':''}<small>${niceKey(f.date)}, ${fmtTime(f.time)}</small></div><div class="rowx"><button class="mini" type="button" data-fedit>Edit</button><button class="mini del" type="button" data-fdel>Delete</button></div></li>`).join('')
+  const all=[...FLYERS].sort(byWhen), past=all.filter(isPast).length;
+  $('#flyList').innerHTML = all.length ? all.map(f=>`<li class="${isPast(f)?'past':''}" data-fid="${esc(f.id)}"><img src="${f.img}" alt=""><div><strong>${esc(f.title)}</strong>${isPast(f)?'<span class="tag">Past</span>':''}<small>${flyDates(f,true)}, ${flyTimes(f)}</small></div><div class="rowx"><button class="mini" type="button" data-fedit>Edit</button><button class="mini del" type="button" data-fdel>Delete</button></div></li>`).join('')
     : `<li style="display:block;border-style:dashed;color:var(--muted)">No flyers yet. Add one and it shows on the Events page.</li>`;
   const pb=$('#flyPurge'); pb.hidden=!past; pb.textContent=`Remove past flyers (${past})`;
 }
 function showFlyPrev(){ const i=$('#flyPrev'); i.hidden=!flyImg; if(flyImg) i.src=flyImg; $('#flyPrevEmpty').hidden=!!flyImg; }
 function fillFlyForm(f){
   flyEditing=f?f.id:null; flyImg=f?f.img:'';
-  $('#flyTitle').value=f?f.title:''; $('#flyDate').value=f?f.date:ssel; $('#flyTime').value=f?f.time:''; $('#flyNote').value=f?(f.note||''):''; $('#flyFile').value='';
+  $('#flyTitle').value=f?f.title:''; $('#flyDate').value=f?f.date:ssel; $('#flyTime').value=f?f.time:''; $('#flyEnd').value=f?(f.end||''):''; $('#flyEndTime').value=f?(f.endTime||''):''; $('#flyNote').value=f?(f.note||''):''; $('#flyFile').value='';
   $('#flyFormTitle').textContent=f?'Edit this flyer':'Add a flyer'; $('#flySubmit').textContent=f?'Save changes':'Add flyer'; $('#flyCancel').hidden=!f;
   $('#flyFileNote').textContent='JPG, PNG or PDF. For a PDF, the first page is used.'; showFlyPrev();
 }
@@ -1272,19 +1292,21 @@ $('#flyFile').addEventListener('change',async e=>{
 $('#flyCancel').onclick=()=>fillFlyForm(null);
 $('#flyForm').addEventListener('submit',e=>{ e.preventDefault();
   if(!flyImg){ flySay('Choose a flyer image or PDF first.'); return; }
-  const data={img:flyImg,title:$('#flyTitle').value.trim(),date:$('#flyDate').value,time:$('#flyTime').value,note:$('#flyNote').value.trim()}, was=flyEditing;
+  const data={img:flyImg,title:$('#flyTitle').value.trim(),date:$('#flyDate').value,time:$('#flyTime').value,end:$('#flyEnd').value,endTime:$('#flyEndTime').value,note:$('#flyNote').value.trim()}, was=flyEditing;
+  if(data.end && data.end<data.date){ flySay('The end date is before the start date. Fix one of them and save again.'); return; }
+  if(data.end===data.date) data.end='';
   if(was) Object.assign(FLYERS.find(x=>x.id===was),data); else FLYERS.push({...data,id:'f'+Date.now()});
   const ok=saveFlyers(); fillFlyForm(null); renderFlyers(); renderFlyAdmin();
-  flySay(ok ? `${data.title} ${was?'updated':'added'}.${data.date<todayKey?' Its date has passed, so it won’t show on the Events page.':''}`
+  flySay(ok ? `${data.title} ${was?'updated':'added'}.${isPast(data)?' Its date has passed, so it won’t show on the Events page.':''}`
             : `${data.title} ${was?'updated':'added'} for now, but this browser is out of room to keep it after a reload. Remove past flyers or use a smaller file.`);
 });
 $('#flyList').addEventListener('click',e=>{
   const li=e.target.closest('[data-fid]'); if(!li) return; const f=FLYERS.find(x=>x.id===li.dataset.fid);
   if(e.target.closest('[data-fedit]')){ fillFlyForm(f); $('#flyForm').scrollIntoView({behavior:'smooth',block:'start'}); $('#flyTitle').focus({preventScroll:true}); }
   const del=e.target.closest('[data-fdel]');
-  if(del){ if(!twoStep(del,'Tap again to delete')) return; FLYERS=FLYERS.filter(x=>x.id!==f.id); if(flyEditing===f.id) fillFlyForm(null); saveFlyers(); renderFlyers(); renderFlyAdmin(); flySay(`${f.title} deleted.`); }
+  if(del){ if(!twoStep(del,'Tap again to delete')) return; FLYERS=FLYERS.filter(x=>x.id!==f.id); if(f.id.startsWith('seed-')) FLY_GONE.push(f.id); if(flyEditing===f.id) fillFlyForm(null); saveFlyers(); renderFlyers(); renderFlyAdmin(); flySay(`${f.title} deleted.`); }
 });
-$('#flyPurge').onclick=e=>{ if(!twoStep(e.currentTarget,'Tap again to remove them')) return; const n=FLYERS.filter(f=>f.date<todayKey).length; FLYERS=FLYERS.filter(f=>f.date>=todayKey); saveFlyers(); renderFlyers(); renderFlyAdmin(); flySay(`${n} past flyer${n>1?'s':''} removed.`); };
+$('#flyPurge').onclick=e=>{ if(!twoStep(e.currentTarget,'Tap again to remove them')) return; const gone=FLYERS.filter(isPast), n=gone.length; gone.forEach(f=>{ if(f.id.startsWith('seed-')) FLY_GONE.push(f.id); }); FLYERS=FLYERS.filter(f=>!isPast(f)); saveFlyers(); renderFlyers(); renderFlyAdmin(); flySay(`${n} past flyer${n>1?'s':''} removed.`); };
 fillFlyForm(null); renderFlyers(); renderFlyAdmin();
 
 /* ---------- Calendar PDF ---------- */

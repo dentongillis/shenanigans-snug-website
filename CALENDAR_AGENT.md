@@ -167,9 +167,9 @@ Staff upload a flyer (photo or PDF) with a title, date, start time and details. 
 
 **Flyer shape**
 ```js
-{ id: "f1731958000000", img: "data:image/jpeg;base64,...", title: "Rhonda Street Band", date: "2026-11-21", time: "17:00", note: "Until 9 PM on the patio." }
+{ id: "f1731958000000", img: "data:image/jpeg;base64,...", title: "Rhonda Street Band", date: "2026-11-21", time: "17:00", end: "", endTime: "", note: "Until 9 PM on the patio." }
 ```
-`img` is a JPEG data URL for staff uploads (resized to 1,000px on the long side) or a path like `img/flyers/rhonda.jpg` for flyers that ship with the site. Flyers are separate from `EVENTS`: adding a flyer does not add a calendar event.
+`end` and `endTime` are optional: a flyer with an end date covers a date range (for example a sign-up period) and shows until its last day has passed; the card then reads "Nov 18 to 29" and "10 AM to 10 PM". `img` is a JPEG data URL for staff uploads (resized to 1,000px on the long side) or a path like `img/flyers/rhonda.jpg` for flyers that ship with the site. Flyers are separate from `EVENTS`: adding a flyer does not add a calendar event.
 
 **Where the code is**
 - HTML: `<section class="flyers" id="flyers">` inside `.cal-side` on the Events page; `<div class="panel fly-admin" id="flyAdmin">` at the bottom of the staff Calendar tab.
@@ -179,9 +179,9 @@ Staff upload a flyer (photo or PDF) with a title, date, start time and details. 
 **How it works**
 | Name | Purpose |
 | --- | --- |
-| `FLYER_SEED` | Flyers that ship with the website and show for every visitor. Put the image in `img/flyers/` and add an entry (example in the code comment) |
+| `FLYER_SEED` | Flyers that ship with the website and show for every visitor. Put the image (about 1,000px on the long side) in `img/flyers/` and add an entry with an id starting `seed-`. Seed flyers are merged into every browser's saved list on load, so a new seed flyer appears even where staff already saved flyers. If staff delete a seed flyer, its id is remembered under `snug-flyers-removed-v1` so it stays gone in that browser. Current seed: the 8th Annual Turkey Bowl (`img/flyers/turkey-bowl-2026.jpg`) |
 | `FLYERS`, `saveFlyers()` | All flyers; saved per browser under `snug-flyers-v1`. `saveFlyers()` returns false when storage is full |
-| `upcomingFlyers()` | Flyers dated today or later, sorted by date and time. Past flyers never show publicly |
+| `upcomingFlyers()` | Flyers whose last day (`end`, or `date` when there is no end) is today or later, sorted by start. Past flyers never show publicly. Helpers: `lastDay`, `isPast`, `flyDates`, `flyTimes`, `flyDay` (the day the buttons use: today if the range has already started) |
 | `renderFlyers()` | Draws the cards. Shows 2 at a time in the desktop sidebar (wider than 980px) and 4 on smaller screens, with a "Show all N flyers" button. Hides the section when there are no upcoming flyers |
 | `flyerCard(f)` | HTML for one card: `.flyer` > `.flyer-inner` > `.ffront` (the flyer over a blurred copy of itself, date pill, flip icon) and `.fback` (calendar block, title, date and time, details, buttons, faint logo watermark) |
 | Flip behaviour | CSS 3D flip (`rotateY(180deg)`, 0.75s ease). On mouse devices it flips on hover (`@media (hover:hover) and (pointer:fine)`); on touch devices a tap toggles `.flipped`; Enter or Space toggles it from the keyboard; focusing a button on the back keeps it flipped. Reduced-motion users get a fade instead of a flip |

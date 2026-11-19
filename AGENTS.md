@@ -131,7 +131,7 @@ Defaults are in `DEFAULT_TYPES`. Staff can rename, recolor, add (ids like `t1731
 | --- | --- | --- | --- |
 | Menu (incl. sold out, uploaded photos) | `localStorage` | `snug-menu-v1` | Yes, this browser only |
 | Events | `localStorage` | `snug-events-v2` | Yes, this browser only |
-| Event flyers (incl. images) | `localStorage` | `snug-flyers-v1` | Yes, this browser only |
+| Event flyers (incl. images) | `localStorage` | `snug-flyers-v1` (+ `snug-flyers-removed-v1` for deleted seed flyers) | Yes, this browser only. Seed flyers in `FLYER_SEED` (images in `img/flyers/`) show for everyone |
 | Event types | `localStorage` | `snug-types-v1` | Yes, this browser only |
 | Cart, orders/bookings log, announcement text | memory | none | No |
 
