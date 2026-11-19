@@ -206,7 +206,73 @@ section.band{padding-block:72px}
 .seg button{border:0;background:transparent;color:var(--cream);font-weight:700;font-size:.92rem;padding:8px 16px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--cream);color:var(--ink)}
 .pubcal .cal-layout{grid-template-columns:2.2fr 1fr}
-.pubcal .daybox{position:sticky;top:96px}
+.pubcal .daybox{position:static}
+.cal-side{display:grid;gap:22px;align-content:start;min-width:0}
+.vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+
+/* event flyers: flip cards */
+.flyers-head{display:grid;gap:4px;margin-bottom:14px}
+.flyers-head h3{font-size:1.5rem}
+.flyers .hint{margin:0}
+.h-tap{display:none}
+@media (hover:none),(pointer:coarse){.h-hover{display:none}.h-tap{display:inline}}
+.flyer-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:20px}
+.flyer{perspective:1400px;cursor:pointer;outline:none;border-radius:16px;-webkit-tap-highlight-color:transparent}
+.flyer:focus-visible{box-shadow:0 0 0 3px var(--bottle),0 0 0 6px var(--amber)}
+.flyer-inner{position:relative;aspect-ratio:4/5;transform-style:preserve-3d;transition:transform .75s cubic-bezier(.22,.8,.24,1),box-shadow .35s ease;border-radius:16px;box-shadow:0 10px 26px rgba(0,0,0,.35)}
+.flyer.flipped .flyer-inner,.flyer:focus-within:not(:focus) .flyer-inner{transform:rotateY(180deg)}
+@media (hover:hover) and (pointer:fine){
+  .flyer:hover .flyer-inner{transform:rotateY(180deg);box-shadow:0 22px 44px rgba(0,0,0,.45)}
+}
+.fface{position:absolute;inset:0;border-radius:16px;overflow:hidden;-webkit-backface-visibility:hidden;backface-visibility:hidden;transform:translateZ(.1px)}
+.ffront{background:#071a10;border:1px solid rgba(247,240,223,.14)}
+.ffront .blur{position:absolute;inset:-24px;background:center/cover no-repeat;filter:blur(22px) brightness(.55) saturate(1.1);transform:scale(1.1)}
+.ffront img{position:relative;width:100%;height:100%;object-fit:contain}
+.fdate{position:absolute;top:12px;left:12px;background:var(--paper);color:var(--ink);border-radius:999px;padding:5px 12px;font-weight:700;font-size:.82rem;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+.fflip{position:absolute;right:12px;bottom:12px;width:36px;height:36px;border-radius:50%;background:rgba(9,33,22,.82);color:var(--cream);display:grid;place-items:center;border:1px solid rgba(247,240,223,.3)}
+.fflip svg{width:18px;height:18px}
+.fback{transform:rotateY(180deg) translateZ(.1px);background:var(--paper);color:var(--ink);border:2px solid var(--ink);display:flex;flex-direction:column;padding:20px 20px 18px;gap:12px}
+.fback::before{content:"";position:absolute;inset:6px;border:1px solid rgba(22,38,28,.25);border-radius:11px;pointer-events:none}
+.fback::after{content:"";position:absolute;left:12%;right:12%;bottom:22%;height:30%;background:url(img/logo.png) center/contain no-repeat;opacity:.09;pointer-events:none}
+.fback>*{position:relative;z-index:1}
+.fb-top{display:flex;gap:14px;align-items:center}
+.fb-cal{flex:none;width:58px;border-radius:12px;overflow:hidden;text-align:center;border:2px solid var(--ink);background:#fffaf0}
+.fb-cal span{display:block;background:var(--ink);color:var(--paper);font-size:.72rem;font-weight:700;padding:3px 0}
+.fb-cal b{display:block;font-family:var(--display);font-size:1.7rem;line-height:1.15;padding:2px 0 3px}
+.fb-title{font-family:var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;font-weight:800;font-size:1.4rem;line-height:1.1;text-wrap:balance}
+.fb-when{font-weight:700;font-size:.92rem;color:#0d6a36;display:flex;align-items:center;gap:6px}
+.fb-note{color:#3d4b41;font-size:1rem;line-height:1.55;padding-top:12px;border-top:1px solid rgba(22,38,28,.18);overflow:auto;flex:1;min-height:0}
+.fb-acts{display:flex;flex-wrap:wrap;gap:8px}
+.fb-acts .btn{padding:9px 14px;font-size:.86rem}
+#flyMore{margin-top:16px}
+@media (prefers-reduced-motion:reduce){
+  .flyer-inner{transition:none!important}
+  .flyer.flipped .flyer-inner,.flyer:hover .flyer-inner{transform:none!important}
+  .fback{transform:none;opacity:0;transition:opacity .2s!important}
+  .flyer.flipped .fback{opacity:1}
+}
+@media (prefers-reduced-motion:reduce) and (hover:hover) and (pointer:fine){.flyer:hover .fback{opacity:1}}
+
+/* staff flyer manager */
+.fly-admin{margin-top:24px}
+.fly-cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:14px;align-items:start}
+.fly-cols>*{min-width:0}
+@media (max-width:980px){.fly-cols{grid-template-columns:1fr}}
+.fly-sub{font-family:var(--display);font-size:1.15rem;margin:0 0 4px;color:var(--cream)}
+#flyForm{margin-top:0}
+#flyForm>*{min-width:0}
+.fly-drop{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.fly-thumb{flex:none;width:96px;aspect-ratio:4/5;border-radius:10px;border:1.5px dashed var(--line);display:grid;place-items:center;overflow:hidden;background:rgba(255,255,255,.04);color:var(--muted);font-size:.72rem;text-align:center;padding:4px}
+.fly-thumb img{width:100%;height:100%;object-fit:cover}
+.fly-pick{display:grid;gap:6px;min-width:0;flex:1 1 180px}
+.fly-pick .hint{margin:0}
+.panel ul.fly-list{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:10px;color:var(--cream)}
+.fly-list li{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.03)}
+.fly-list li.past{opacity:.6}
+.fly-list img{width:56px;height:70px;object-fit:cover;border-radius:8px}
+.fly-list small{display:block;color:var(--muted)}
+.fly-list .tag{display:inline-block;margin-left:6px;font-size:.72rem;font-weight:700;border-radius:999px;padding:1px 8px;background:rgba(255,255,255,.14)}
+@media (max-width:560px){.fly-list li{grid-template-columns:48px 1fr}.fly-list img{width:48px;height:60px}.fly-list li>.rowx{grid-column:1 / -1}}
 .pubcal .grid.big .day{min-height:104px}
 .pubcal .cal-top .btn{margin-left:0}
 @media (max-width:980px){.pubcal .cal-layout{grid-template-columns:1fr}.pubcal .daybox{position:static}}
@@ -504,7 +570,14 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
         <div class="grid big" id="pubGrid"></div>
         <div class="legend" data-legend></div>
       </div>
-      <div class="daybox" id="dayBox" aria-live="polite"></div>
+      <div class="cal-side">
+        <div class="daybox" id="dayBox" aria-live="polite"></div>
+        <section class="flyers" id="flyers" hidden aria-labelledby="flyersH">
+          <div class="flyers-head"><h3 id="flyersH">Event flyers</h3><p class="hint"><span class="h-hover">Hover over a flyer to see the details.</span><span class="h-tap">Tap a flyer to see the details.</span></p></div>
+          <div class="flyer-grid" id="flyerGrid"></div>
+          <button class="btn btn-ghost btn-sm" id="flyMore" type="button" hidden></button>
+        </section>
+      </div>
     </div>
     <div class="monthlist" id="pubList" hidden></div>
     <div class="calcta"><a class="btn btn-amber" href="#reservations">Book a table</a><a class="btn btn-ghost" href="#parties">Plan a party</a></div>
@@ -703,6 +776,32 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
             <div class="ok" id="typeOk" hidden></div>
           </div>
           <button class="mini" id="evReset" type="button" style="margin-top:16px">Reset to the example events and types</button>
+        </div>
+      </div>
+      <div class="panel fly-admin" id="flyAdmin">
+        <h3>Event flyers</h3>
+        <p class="hint" style="max-width:62ch">Upload a flyer as a photo or a PDF. It shows on the Events page under the day details, and flips to show the title, date, time and details. Flyers show until their date has passed.</p>
+        <div class="fly-cols">
+          <form id="flyForm">
+            <h4 id="flyFormTitle" class="fly-sub">Add a flyer</h4>
+            <div class="fly-drop">
+              <div class="fly-thumb" id="flyPrevBox"><img id="flyPrev" alt="" hidden><span id="flyPrevEmpty">No flyer chosen yet</span></div>
+              <div class="fly-pick">
+                <label class="btn btn-amber btn-sm" for="flyFile" style="width:max-content">Choose image or PDF</label>
+                <input id="flyFile" type="file" accept="image/*,application/pdf" class="vh">
+                <p class="hint" id="flyFileNote">JPG, PNG or PDF. For a PDF, the first page is used.</p>
+              </div>
+            </div>
+            <label for="flyTitle">Event title<input id="flyTitle" required maxlength="80" placeholder="Rhonda Street Band"></label>
+            <div class="f2"><label for="flyDate">Date<input id="flyDate" type="date" required></label><label for="flyTime">Start time (blank for all day)<input id="flyTime" type="time"></label></div>
+            <label for="flyNote">Details<textarea id="flyNote" rows="3" maxlength="400" placeholder="5 to 9 PM on the patio. No cover."></textarea></label>
+            <div class="rowx"><button class="btn btn-amber btn-sm" type="submit" id="flySubmit">Add flyer</button><button class="btn btn-ghost btn-sm" type="button" id="flyCancel" hidden>Cancel editing</button></div>
+            <div class="ok" id="flyOk" hidden></div>
+          </form>
+          <div>
+            <div class="rowx" style="justify-content:space-between"><h4 class="fly-sub" style="margin:0">Your flyers</h4><button class="mini" id="flyPurge" type="button" hidden>Remove past flyers</button></div>
+            <ul class="fly-list" id="flyList"></ul>
+          </div>
         </div>
       </div>
     </div>
@@ -1086,6 +1185,107 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-stab]'); i
   $$('[data-stab]').forEach(x=>x.setAttribute('aria-selected', x===b));
   $$('[data-stabp]').forEach(p=>p.hidden = p.dataset.stabp!==b.dataset.stab);});
 renderTypeList(); renderTypeUses(); fillForm(null); renderAllEvents();
+
+/* ---------- Event flyers ---------- */
+/* Flyers that ship with the website (shown to every visitor). Put the image in img/flyers/ and add an entry, e.g.
+   {id:'f-2026-11-14-rhonda', img:'img/flyers/rhonda-street-band.jpg', title:'Rhonda Street Band', date:'2026-11-14', time:'17:00', note:'Until 9 PM.'} */
+const FLYER_SEED = [];
+const FLY_KEY='snug-flyers-v1';
+let FLYERS=null; try{FLYERS=JSON.parse(localStorage.getItem(FLY_KEY));}catch(e){}
+if(!Array.isArray(FLYERS)) FLYERS=FLYER_SEED.map(f=>({...f}));
+function saveFlyers(){ try{localStorage.setItem(FLY_KEY,JSON.stringify(FLYERS)); return true;}catch(e){ return false; } }
+const byWhen=(a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||''));
+const upcomingFlyers=()=>FLYERS.filter(f=>f.date>=todayKey).sort(byWhen);
+const FLIP_ICON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>';
+const CLOCK_ICON='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+let flyShowAll=false;
+const wideCal=matchMedia('(min-width:981px)');
+function flyerCard(f){
+  const [y,m,d]=f.date.split('-').map(Number), dt=new Date(y,m-1,d), short=`${DOW[dt.getDay()]}, ${MONTHS[m-1].slice(0,3)} ${d}`;
+  return `<div class="flyer" tabindex="0" data-flyer="${esc(f.id)}">
+    <div class="flyer-inner">
+      <div class="fface ffront"><div class="blur" style="background-image:url('${f.img}')"></div><img src="${f.img}" alt="Flyer for ${esc(f.title)}" loading="lazy"><span class="fdate">${short}</span><span class="fflip">${FLIP_ICON}</span></div>
+      <div class="fface fback">
+        <div class="fb-top"><div class="fb-cal"><span>${MONTHS[m-1].slice(0,3)}</span><b>${d}</b></div><div class="fb-title">${esc(f.title)}</div></div>
+        <div class="fb-when">${CLOCK_ICON}${DOW[dt.getDay()]}, ${MONTHS[m-1]} ${d} &middot; ${fmtTime(f.time)}</div>
+        <div class="fb-note">${f.note?esc(f.note):'See you at the Snug.'}</div>
+        <div class="fb-acts"><a class="btn btn-ink" href="#reservations" data-bookday="${f.date}">Book a table</a><button class="btn btn-line" type="button" data-showday="${f.date}">See the day</button></div>
+      </div>
+    </div></div>`;
+}
+function renderFlyers(){
+  const list=upcomingFlyers(), sec=$('#flyers');
+  sec.hidden=!list.length; if(!list.length) return;
+  const lim=wideCal.matches?2:4, shown=flyShowAll?list:list.slice(0,lim);
+  $('#flyerGrid').innerHTML=shown.map(flyerCard).join('');
+  const more=$('#flyMore'); more.hidden=list.length<=lim; more.textContent=flyShowAll?'Show fewer flyers':`Show all ${list.length} flyers`;
+}
+const canHover=()=>matchMedia('(hover:hover) and (pointer:fine)').matches;
+function flipCard(c){ c.classList.toggle('flipped'); }
+$('#flyerGrid').addEventListener('click',e=>{
+  const book=e.target.closest('[data-bookday]'); if(book){ if(book.dataset.bookday>=todayKey) $('#bDate').value=book.dataset.bookday; return; }
+  const show=e.target.closest('[data-showday]');
+  if(show){ e.stopPropagation(); const [y,m]=show.dataset.showday.split('-').map(Number); pview.y=y; pview.m=m-1; psel=show.dataset.showday;
+    if(pmode!=='cal') document.querySelector('[data-pmode="cal"]').click(); renderPubCal(); $('#pubGrid').scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  const c=e.target.closest('.flyer'); if(!c||canHover()) return; flipCard(c);
+});
+$('#flyerGrid').addEventListener('keydown',e=>{ if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('flyer')){ e.preventDefault(); flipCard(e.target); } });
+$('#flyMore').onclick=()=>{ flyShowAll=!flyShowAll; renderFlyers(); };
+wideCal.addEventListener('change',()=>{ if(!flyShowAll) renderFlyers(); });
+
+/* staff: add, edit and delete flyers */
+let flyEditing=null, flyImg='';
+const flySay=m=>{const b=$('#flyOk'); b.hidden=false; b.textContent=m;};
+function renderFlyAdmin(){
+  const all=[...FLYERS].sort(byWhen), past=all.filter(f=>f.date<todayKey).length;
+  $('#flyList').innerHTML = all.length ? all.map(f=>`<li class="${f.date<todayKey?'past':''}" data-fid="${esc(f.id)}"><img src="${f.img}" alt=""><div><strong>${esc(f.title)}</strong>${f.date<todayKey?'<span class="tag">Past</span>':''}<small>${niceKey(f.date)}, ${fmtTime(f.time)}</small></div><div class="rowx"><button class="mini" type="button" data-fedit>Edit</button><button class="mini del" type="button" data-fdel>Delete</button></div></li>`).join('')
+    : `<li style="display:block;border-style:dashed;color:var(--muted)">No flyers yet. Add one and it shows on the Events page.</li>`;
+  const pb=$('#flyPurge'); pb.hidden=!past; pb.textContent=`Remove past flyers (${past})`;
+}
+function showFlyPrev(){ const i=$('#flyPrev'); i.hidden=!flyImg; if(flyImg) i.src=flyImg; $('#flyPrevEmpty').hidden=!!flyImg; }
+function fillFlyForm(f){
+  flyEditing=f?f.id:null; flyImg=f?f.img:'';
+  $('#flyTitle').value=f?f.title:''; $('#flyDate').value=f?f.date:ssel; $('#flyTime').value=f?f.time:''; $('#flyNote').value=f?(f.note||''):''; $('#flyFile').value='';
+  $('#flyFormTitle').textContent=f?'Edit this flyer':'Add a flyer'; $('#flySubmit').textContent=f?'Save changes':'Add flyer'; $('#flyCancel').hidden=!f;
+  $('#flyFileNote').textContent='JPG, PNG or PDF. For a PDF, the first page is used.'; showFlyPrev();
+}
+const toJpeg=(src,maxSide=1000)=>{ const s=Math.min(1,maxSide/Math.max(src.width,src.height)), c=document.createElement('canvas');
+  c.width=Math.round(src.width*s); c.height=Math.round(src.height*s); const g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.drawImage(src,0,0,c.width,c.height); return c.toDataURL('image/jpeg',0.82); };
+function loadScript(src){ return new Promise((res,rej)=>{ if(document.querySelector(`script[src="${src}"]`)) return res(); const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=()=>rej(new Error('load')); document.head.appendChild(s); }); }
+async function pdfFirstPage(file){
+  if(!window.pdfjsLib){ await loadScript('vendor/pdf.min.js'); window.pdfjsLib.GlobalWorkerOptions.workerSrc='vendor/pdf.worker.min.js'; }
+  const pdf=await window.pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise, page=await pdf.getPage(1);
+  const v1=page.getViewport({scale:1}), vp=page.getViewport({scale:1400/Math.max(v1.width,v1.height)});
+  const c=document.createElement('canvas'); c.width=Math.round(vp.width); c.height=Math.round(vp.height);
+  await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise; return toJpeg(c);
+}
+$('#flyFile').addEventListener('change',async e=>{
+  const f=e.target.files[0]; if(!f) return; const note=$('#flyFileNote'), btn=$('#flySubmit');
+  note.textContent='Preparing your flyer.'; btn.disabled=true;
+  try{
+    if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)) flyImg=await pdfFirstPage(f);
+    else flyImg=await new Promise((res,rej)=>{ const im=new Image(), url=URL.createObjectURL(f); im.onload=()=>{ res(toJpeg(im)); URL.revokeObjectURL(url); }; im.onerror=()=>rej(new Error('img')); im.src=url; });
+    note.textContent=`${f.name} is ready.`;
+  }catch(err){ note.textContent='That file could not be read. Try a JPG, PNG or PDF.'; }
+  btn.disabled=false; showFlyPrev();
+});
+$('#flyCancel').onclick=()=>fillFlyForm(null);
+$('#flyForm').addEventListener('submit',e=>{ e.preventDefault();
+  if(!flyImg){ flySay('Choose a flyer image or PDF first.'); return; }
+  const data={img:flyImg,title:$('#flyTitle').value.trim(),date:$('#flyDate').value,time:$('#flyTime').value,note:$('#flyNote').value.trim()}, was=flyEditing;
+  if(was) Object.assign(FLYERS.find(x=>x.id===was),data); else FLYERS.push({...data,id:'f'+Date.now()});
+  const ok=saveFlyers(); fillFlyForm(null); renderFlyers(); renderFlyAdmin();
+  flySay(ok ? `${data.title} ${was?'updated':'added'}.${data.date<todayKey?' Its date has passed, so it won’t show on the Events page.':''}`
+            : `${data.title} ${was?'updated':'added'} for now, but this browser is out of room to keep it after a reload. Remove past flyers or use a smaller file.`);
+});
+$('#flyList').addEventListener('click',e=>{
+  const li=e.target.closest('[data-fid]'); if(!li) return; const f=FLYERS.find(x=>x.id===li.dataset.fid);
+  if(e.target.closest('[data-fedit]')){ fillFlyForm(f); $('#flyForm').scrollIntoView({behavior:'smooth',block:'start'}); $('#flyTitle').focus({preventScroll:true}); }
+  const del=e.target.closest('[data-fdel]');
+  if(del){ if(!twoStep(del,'Tap again to delete')) return; FLYERS=FLYERS.filter(x=>x.id!==f.id); if(flyEditing===f.id) fillFlyForm(null); saveFlyers(); renderFlyers(); renderFlyAdmin(); flySay(`${f.title} deleted.`); }
+});
+$('#flyPurge').onclick=e=>{ if(!twoStep(e.currentTarget,'Tap again to remove them')) return; const n=FLYERS.filter(f=>f.date<todayKey).length; FLYERS=FLYERS.filter(f=>f.date>=todayKey); saveFlyers(); renderFlyers(); renderFlyAdmin(); flySay(`${n} past flyer${n>1?'s':''} removed.`); };
+fillFlyForm(null); renderFlyers(); renderFlyAdmin();
 
 /* ---------- Calendar PDF ---------- */
 const pdfv = {y:today.y,m:today.m};

@@ -1,6 +1,6 @@
 # Calendar guide for AI agents: Shenanigan's Snug website
 
-Give this file to an AI coding agent that will change anything about the events calendar on the Shenanigan's Snug website: the public Events page, the "What's on this week" list on Home, the printable PDF calendar, or the Calendar tab in the staff dashboard.
+Give this file to an AI coding agent that will change anything about the events calendar on the Shenanigan's Snug website: the public Events page, the event flyers, the "What's on this week" list on Home, the printable PDF calendar, or the Calendar tab in the staff dashboard.
 
 Read the whole file before editing. The general repo guide is `AGENTS.md` in the repo root.
 
@@ -12,6 +12,7 @@ Read the whole file before editing. The general repo guide is `AGENTS.md` in the
 - **One file holds everything:** `index.html` has all the HTML, CSS and JavaScript. There is no framework, no build step and no `package.json`.
 - **No backend.** Events and event types are saved in the visitor's browser with `localStorage`. Changes staff make on one device are not seen on any other device. Do not tell the owners otherwise.
 - **The PDF library** is vendored at `vendor/jspdf.umd.min.js` (jsPDF 2.5.1) and loaded only when someone downloads a PDF.
+- **pdf.js** is vendored at `vendor/pdf.min.js` and `vendor/pdf.worker.min.js` (3.11.174) and loaded only when staff upload a PDF flyer.
 - **Time zone:** the pub is in Arizona. `azNow()` gives the current date and time in `America/Phoenix`; `today` is set from it once when the page loads.
 
 ## 2. Where the calendar appears
@@ -19,10 +20,11 @@ Read the whole file before editing. The general repo guide is `AGENTS.md` in the
 | Place | What visitors or staff see | Main element ids |
 | --- | --- | --- |
 | Events page (`#events`) | Month grid with event titles in each day, a details panel for the selected day, a Calendar/List switch, a "Download calendar (PDF)" button, a color key | `#pubPrev`, `#pubTitle`, `#pubNext`, `[data-pmode]`, `#pdfOpen`, `#pubCalView`, `#pubGrid`, `#dayBox`, `#pubList` |
+| Events page, under the day details | Event flyers: flip cards with the flyer on the front and the details on the back | `#flyers`, `#flyerGrid`, `#flyMore` |
 | Home page (`#home`) | "What's on this week": the next 4 events in the coming 14 days | `#weekList` |
 | PDF dialog (opens from the Events page) | Month picker, live preview, Download button | `#pdfModal`, `#pdfMonth`, `#pdfGo`, `#pdfClose`, `#pdfMsg`, `#pdfPrev`, `#pdfSheet`, `#pdfPrevTitle`, `#pdfPrevGrid` |
 | Downloaded PDF | One landscape US-letter page: logo, month, grid, events with time, title and details, color key, pub name | built in `buildCalendarPDF()` |
-| Staff dashboard, Calendar tab (`#staff`, then the Calendar tab) | Month grid, selected day's events with Edit/Delete, the add/edit form, the Event types panel, a Reset button | `#stPrev`, `#stTitle`, `#stNext`, `#stGrid`, `#stSide`, `#stDayTitle`, `#stDayList`, `#evForm`, `#typeList`, `#typeAdd`, `#evReset` |
+| Staff dashboard, Calendar tab (`#staff`, then the Calendar tab) | Month grid, selected day's events with Edit/Delete, the add/edit form, the Event types panel, a Reset button | `#stPrev`, `#stTitle`, `#stNext`, `#stGrid`, `#stSide`, `#stDayTitle`, `#stDayList`, `#evForm`, `#typeList`, `#typeAdd`, `#evReset`, and the flyer manager `#flyAdmin`, `#flyForm`, `#flyList` |
 
 Every color key on the site is a `<div class="legend" data-legend></div>`, filled in by JavaScript.
 
@@ -75,12 +77,16 @@ All types live in `TYPES`. The defaults are in `DEFAULT_TYPES`: `music` (Live mu
 
 | Key in localStorage | Holds | Saved by | Loaded |
 | --- | --- | --- | --- |
-| `snug-events-v1` (`EV_KEY`) | `EVENTS` | `saveEvents()` | on page load; falls back to `seedEvents()` |
+| `snug-events-v2` (`EV_KEY`) | `EVENTS` | `saveEvents()` | on page load; falls back to `seedEvents()` |
+| `snug-flyers-v1` (`FLY_KEY`) | `FLYERS` | `saveFlyers()` | on page load; falls back to `FLYER_SEED` |
 | `snug-types-v1` (`TYPE_KEY`) | `TYPES` | `saveTypes()` | on page load; falls back to `DEFAULT_TYPES` |
 
 All reads and writes are wrapped in try/catch, so the page still works when storage is blocked.
 
-**Important:** once a browser has saved events or types, it ignores the seed data. If you change `seedEvents()` or `DEFAULT_TYPES` and want every browser to pick up the change, either tell staff to press "Reset to the example events and types", or bump the key (for example `snug-events-v2`). Bumping the key throws away events staff added in that browser, so say so to the user first.
+**Important:** once a browser has saved events or types, it ignores the seed data. If you change `seedEvents()` or `DEFAULT_TYPES` and want every browser to pick up the change, either tell staff to press "Reset to the example events and types", or bump the key (for example `snug-events-v3`). Bumping the key throws away events staff added in that browser, so say so to the user first.
+
+### Real events: `REAL_EVENTS`
+Confirmed events are listed by month, keyed `'YYYY-MM'`, in the `REAL_EVENTS` object just above `seedEvents()`. Each entry has the event shape above without `id`. A month listed there shows only its real events; the example weekly events are skipped for that month. To publish a new month for every visitor, add a key with its events and bump `EV_KEY`.
 
 ### Example events: `seedEvents()`
 Runs when no saved events exist. It loops over every day from the first of last month to the end of the month 12 months ahead, relative to `today`, and adds:
@@ -155,7 +161,41 @@ Returns the HTML for a 7-column month: day-name headers, blank cells before the 
 
 **Start-up order** (at the end of the Events section): `renderTypeList(); renderTypeUses(); fillForm(null); renderAllEvents();`
 
-## 6. The PDF
+## 6. Event flyers
+
+Staff upload a flyer (photo or PDF) with a title, date, start time and details. On the Events page it appears as a card in the right-hand column under the day details. Hovering (mouse) or tapping (touch) flips the card to show the details, a "Book a table" button (it also pre-fills the booking date) and a "See the day" button (jumps the calendar to that date).
+
+**Flyer shape**
+```js
+{ id: "f1731958000000", img: "data:image/jpeg;base64,...", title: "Rhonda Street Band", date: "2026-11-21", time: "17:00", note: "Until 9 PM on the patio." }
+```
+`img` is a JPEG data URL for staff uploads (resized to 1,000px on the long side) or a path like `img/flyers/rhonda.jpg` for flyers that ship with the site. Flyers are separate from `EVENTS`: adding a flyer does not add a calendar event.
+
+**Where the code is**
+- HTML: `<section class="flyers" id="flyers">` inside `.cal-side` on the Events page; `<div class="panel fly-admin" id="flyAdmin">` at the bottom of the staff Calendar tab.
+- CSS: `/* event flyers: flip cards */` and `/* staff flyer manager */`.
+- JavaScript: `/* ---------- Event flyers ---------- */`.
+
+**How it works**
+| Name | Purpose |
+| --- | --- |
+| `FLYER_SEED` | Flyers that ship with the website and show for every visitor. Put the image in `img/flyers/` and add an entry (example in the code comment) |
+| `FLYERS`, `saveFlyers()` | All flyers; saved per browser under `snug-flyers-v1`. `saveFlyers()` returns false when storage is full |
+| `upcomingFlyers()` | Flyers dated today or later, sorted by date and time. Past flyers never show publicly |
+| `renderFlyers()` | Draws the cards. Shows 2 at a time in the desktop sidebar (wider than 980px) and 4 on smaller screens, with a "Show all N flyers" button. Hides the section when there are no upcoming flyers |
+| `flyerCard(f)` | HTML for one card: `.flyer` > `.flyer-inner` > `.ffront` (the flyer over a blurred copy of itself, date pill, flip icon) and `.fback` (calendar block, title, date and time, details, buttons, faint logo watermark) |
+| Flip behaviour | CSS 3D flip (`rotateY(180deg)`, 0.75s ease). On mouse devices it flips on hover (`@media (hover:hover) and (pointer:fine)`); on touch devices a tap toggles `.flipped`; Enter or Space toggles it from the keyboard; focusing a button on the back keeps it flipped. Reduced-motion users get a fade instead of a flip |
+| `renderFlyAdmin()` | Staff list with thumbnails, a Past tag, Edit and Delete (two taps), and "Remove past flyers" |
+| `fillFlyForm(f)` | Loads a flyer into the staff form, or resets it (date defaults to the selected staff calendar day) |
+| `pdfFirstPage(file)` | Lazy-loads pdf.js, renders page 1 of a PDF to a canvas, returns a JPEG data URL |
+| `toJpeg(source)` | Resizes an image or canvas and returns a JPEG data URL |
+
+**Watch out for**
+- Each flyer adds roughly 50 to 250 KB to browser storage, which is limited to about 5 MB and shared with the menu and events. The form warns when it is full; "Remove past flyers" frees space.
+- Card text sits on the paper-colored back, so long details scroll inside `.fb-note`. Keep the height math out of it: the card is a fixed 4:5 shape.
+- Test hover on a desktop browser and tap on a real phone; desktop browsers emulating touch don't always switch the hint text.
+
+## 7. The PDF
 
 | Name | Purpose |
 | --- | --- |
@@ -180,7 +220,7 @@ Font sizes: day number 10, event title 7.5, details 6.5, footer 9. jsPDF only ha
 
 Downloads are blocked inside the Claude artifact preview. Test the PDF on the Vercel site or a local server.
 
-## 7. Phone and desktop behavior
+## 8. Phone and desktop behavior
 
 - At 760px and narrower (phones), Events page labels drop the time and show the title only in very small text; the selected day's details appear below the grid; the Calendar/List switch fills the width.
 - At 980px and narrower, the details panel moves under the grid (Events page) and the staff day editor moves under the staff grid.
@@ -188,7 +228,7 @@ Downloads are blocked inside the Claude artifact preview. Test the PDF on the Ve
 - The PDF preview always shows text, scaled down.
 - After any change, check widths 320, 375, 414, 768, 1024 and 1440. Nothing may scroll sideways: `document.documentElement.scrollWidth > innerWidth` must be false.
 
-## 8. Recipes for common changes
+## 9. Recipes for common changes
 
 **Change the example schedule**
 Edit `seedEvents()`. Remember existing browsers keep their saved events (see section 4).
@@ -226,7 +266,7 @@ Edit `buildCalendarPDF()`. Brand colors as RGB: ink `[22,38,28]`, dark green bar
 **Move the calendar to a real backend later**
 Replace the bodies of `saveEvents()`, `saveTypes()` and the two `localStorage` loads with API calls, keep the same object shapes, and keep calling `renderAllEvents()` after each change. Staff access must then sit behind a login (planned: Clerk). Nothing else in the rendering code needs to change.
 
-## 9. Rules that prevent bugs
+## 10. Rules that prevent bugs
 
 - **Unique ids.** All pages live in one HTML document. Check for duplicates after editing: `grep -o 'id="[^"]*"' index.html | sort | uniq -d` must print nothing.
 - **Escape text.** Run titles, notes and type names through `esc()` before inserting them into HTML.
@@ -237,7 +277,7 @@ Replace the bodies of `saveEvents()`, `saveTypes()` and the two `localStorage` l
 - **Don't break the other tabs.** The staff page also has Overview and Menu tabs that share the `[data-stab]` switching.
 - **Plain language.** The owners are not technical. Messages say what happened ("Trivia night added to Wed, November 18."), and buttons say what they do.
 
-## 10. Testing checklist
+## 11. Testing checklist
 
 Serve the folder (`python3 -m http.server 8000`) and check, at phone and desktop widths:
 
@@ -247,10 +287,11 @@ Serve the folder (`python3 -m http.server 8000`) and check, at phone and desktop
 - [ ] Event types: rename, recolor, add, and try deleting a type that is in use (it should refuse)
 - [ ] Reload the page: events and types are still there
 - [ ] "Reset to the example events and types" restores the defaults
+- [ ] Event flyers: upload a JPG and a PDF in the staff Calendar tab, check they flip on hover (desktop) and tap (phone), and that past flyers don't show
 - [ ] The PDF dialog preview matches the month picked, and the downloaded PDF has the logo, every event's time and title, and the color key
 - [ ] No sideways scrolling at any width and no errors in the browser console
 
-## 11. Publishing a change
+## 12. Publishing a change
 
 Commit with a short, plain message describing what changed for the pub, then push to `main`:
 

@@ -16,6 +16,8 @@ The audience for the code is non-developers (the owners), so user-facing copy an
 index.html              The entire site: HTML, CSS and JavaScript in one file (~1,200 lines)
 img/                    Logo (logo.png) and 20 food/bar photos (JPG, ~800px, from Mountain View Pub)
 vendor/jspdf.umd.min.js jsPDF 2.5.1, vendored (used only for the Events PDF download)
+vendor/pdf.min.js       pdf.js 3.11.174 (+ pdf.worker.min.js), vendored; turns an uploaded PDF flyer into an image
+CALENDAR_AGENT.md       Detailed guide to the calendar, events and flyers
 favicon.png             Browser tab icon (crop of the logo shamrock)
 vercel.json             Static hosting config: cleanUrls + 1-week cache on /img
 README.md               Short human readme (partly out of date: see "Known issues")
@@ -25,7 +27,7 @@ No `package.json`, no build step, no framework, no dependencies to install.
 
 ## Running and deploying
 
-- **Local:** serve the folder with any static server, e.g. `python3 -m http.server 8000`, then open `http://localhost:8000`. Opening `index.html` directly as a file mostly works, but use a server when testing the PDF download (it loads `vendor/jspdf.umd.min.js` on demand).
+- **Local:** serve the folder with any static server, e.g. `python3 -m http.server 8000`, then open `http://localhost:8000`. Opening `index.html` directly as a file mostly works, but use a server when testing the PDF download or PDF flyer uploads (they load `vendor/` scripts on demand).
 - **Deploy:** the GitHub repo `dentongillis/shenanigans-snug-website` is connected to Vercel. Every push to `main` redeploys. Vercel settings: Framework Preset "Other", no build command, no output directory.
 - **Tests:** there is no test suite. Verify changes in a browser at phone width (320 to 414px), tablet (768px) and desktop (1280px+). Check that nothing scrolls sideways (`document.documentElement.scrollWidth > innerWidth` should be false) and that the console has no errors.
 
@@ -59,7 +61,7 @@ Meta description, Open Graph tags, favicon, and Google Fonts (**Fraunces** for d
 | `#menu` | Menu | Read-only menu with tabs, section chips and photos. Rendered into `[data-tabs="menu"]`, `[data-chips="menu"]`, `[data-body="menu"]` |
 | `#order` | Order online | **"Coming soon" page.** Every Order online button points here |
 | `#order-preview` | Working order page | Hidden (nothing links to it). Menu with Add buttons and a cart (`#cartBox`). Re-enable ordering by pointing the Order links back here |
-| `#events` | Events | Month calendar (`#pubGrid`) with day details (`#dayBox`), Calendar/List toggle, PDF download button |
+| `#events` | Events | Month calendar (`#pubGrid`) with day details (`#dayBox`), Event flyers flip cards (`#flyers`) under the day details, Calendar/List toggle, PDF download button |
 | `#reservations` | Book a table | `#bookForm` |
 | `#parties` | Private parties | `#partyForm` |
 | `#about` | Our story | Static copy and photos |
@@ -82,6 +84,7 @@ Sections, in order (search for these comments):
 | `/* ---------- Favorites ---------- */` | `FAVS` (six dish names shown on Home), `renderFavs()` |
 | `/* ---------- Cart ---------- */` | In-memory `cart`, `addToCart`, `renderCart`, pickup times, fake checkout. `log` collects orders, bookings and party requests for the staff Overview |
 | `/* ---------- Events ---------- */` | Event types (`TYPES`), events (`EVENTS`), date helpers, `gridHTML()` (shared month grid), public calendar, home "this week", staff calendar editor, event type editor, staff tab switching |
+| `/* ---------- Event flyers ---------- */` | `FLYER_SEED`, `FLYERS`, flip cards on the Events page (`renderFlyers`), staff flyer manager (`renderFlyAdmin`, upload with PDF-to-image) |
 | `/* ---------- Calendar PDF ---------- */` | PDF dialog, live preview, lazy-loads jsPDF, `buildCalendarPDF(y,m)` draws a one-page landscape letter calendar |
 | `/* ---------- Forms ---------- */` | Booking, party and contact forms. They show a confirmation but **send nothing** |
 | `/* ---------- Gallery ---------- */` | `GAL` list of photos and captions, lightbox |
@@ -114,7 +117,7 @@ The three `TABS` keys are exact strings and must match `menu` values:
 ```js
 { id: 5, date: "2026-11-20", title: "Friday live music", time: "19:00", kind: "music", note: "Local bands, no cover." }
 ```
-`time` is `"HH:MM"` (24-hour) or `""` for all day. `kind` is an event type id. On first load `seedEvents()` generates example weekly events (trivia Wednesdays, live music Fridays and Saturdays, football Sundays, St. Patrick's Day) from last month to 12 months ahead, relative to today.
+`time` is `"HH:MM"` (24-hour) or `""` for all day. `kind` is an event type id. Real, confirmed events are listed by month in `REAL_EVENTS` (e.g. `'2026-11'`); months listed there use only those events. For other months, on first load `seedEvents()` generates example weekly events (trivia Wednesdays, live music Fridays and Saturdays, football Sundays, St. Patrick's Day) from last month to 12 months ahead, relative to today.
 
 ### Event type (`TYPES` array)
 ```js
@@ -127,7 +130,8 @@ Defaults are in `DEFAULT_TYPES`. Staff can rename, recolor, add (ids like `t1731
 | Data | Storage | Key | Survives reload? |
 | --- | --- | --- | --- |
 | Menu (incl. sold out, uploaded photos) | `localStorage` | `snug-menu-v1` | Yes, this browser only |
-| Events | `localStorage` | `snug-events-v1` | Yes, this browser only |
+| Events | `localStorage` | `snug-events-v2` | Yes, this browser only |
+| Event flyers (incl. images) | `localStorage` | `snug-flyers-v1` | Yes, this browser only |
 | Event types | `localStorage` | `snug-types-v1` | Yes, this browser only |
 | Cart, orders/bookings log, announcement text | memory | none | No |
 
