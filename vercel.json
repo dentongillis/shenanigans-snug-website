@@ -1,6 +1,21 @@
 {
   "cleanUrls": true,
+  "redirects": [
+    { "source": "/home", "destination": "/#home", "permanent": false },
+    { "source": "/menu", "destination": "/#menu", "permanent": false },
+    { "source": "/order", "destination": "/#order", "permanent": false },
+    { "source": "/events", "destination": "/#events", "permanent": false },
+    { "source": "/live-music", "destination": "/#events", "permanent": false },
+    { "source": "/reservations", "destination": "/#reservations", "permanent": false },
+    { "source": "/book", "destination": "/#reservations", "permanent": false },
+    { "source": "/parties", "destination": "/#parties", "permanent": false },
+    { "source": "/about", "destination": "/#about", "permanent": false },
+    { "source": "/gallery", "destination": "/#gallery", "permanent": false },
+    { "source": "/contact", "destination": "/#contact", "permanent": false },
+    { "source": "/staff", "destination": "/#staff", "permanent": false }
+  ],
   "headers": [
-    { "source": "/img/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] }
+    { "source": "/img/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }] },
+    { "source": "/vendor/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000, immutable" }] }
   ]
 }

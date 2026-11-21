@@ -19,7 +19,8 @@ vendor/jspdf.umd.min.js jsPDF 2.5.1, vendored (used only for the Events PDF down
 vendor/pdf.min.js       pdf.js 3.11.174 (+ pdf.worker.min.js), vendored; turns an uploaded PDF flyer into an image
 CALENDAR_AGENT.md       Detailed guide to the calendar, events and flyers
 favicon.png             Browser tab icon (crop of the logo shamrock)
-vercel.json             Static hosting config: cleanUrls + 1-week cache on /img
+vercel.json             Static hosting config: cleanUrls, redirects from /menu, /events etc. to the matching #page, cache headers
+404.html                Friendly not-found page
 README.md               Short human readme (partly out of date: see "Known issues")
 ```
 
@@ -41,7 +42,8 @@ Meta description, Open Graph tags, favicon, and Google Fonts (**Fraunces** for d
 ### 2. `<style>` (one stylesheet)
 - `:root` holds the design tokens (see "Design system").
 - Sections are marked with comments such as `/* photo bands */`, `/* menu */`, `/* order page */`, `/* calendar */`, `/* forms */`.
-- Responsive breakpoints in use: `1080px` (nav collapses to the burger menu), `980px` (two-column layouts stack), `860px`, `820px`, `760px` (main phone breakpoint), `560px`, `420px`.
+- Responsive breakpoints in use: `1360px` (nav links tighten), `1200px` (nav collapses to the burger menu), `980px` (two-column layouts stack), `860px`, `820px`, `760px` (main phone breakpoint), `560px`, `420px`.
+- `html,body{overflow-x:clip}` is a safety net against sideways scrolling on phones. Don't rely on it: fix the element that overflows (calendar grids use `minmax(0,1fr)` columns for this reason).
 - A global rule `[hidden]{display:none!important}` makes the `hidden` attribute always win. The JS relies on it to show and hide panels, buttons and messages.
 - `prefers-reduced-motion` turns off animations and transitions.
 
