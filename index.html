@@ -305,6 +305,17 @@ section.band{padding-block:72px}
   .pubcal .cal-top .btn{margin-left:0;width:100%}
   .modal .box{padding:18px}
 }
+.staff-gate{min-height:70vh;display:flex;align-items:center}
+.gate-wrap{display:grid;grid-template-columns:1fr minmax(0,440px);gap:48px;align-items:center}
+.gate-logo{width:min(300px,80%);margin-bottom:22px;filter:drop-shadow(0 8px 20px rgba(0,0,0,.45))}
+.gate-copy h1{font-size:clamp(2.4rem,5vw,3.6rem)}
+.gate-copy p{color:var(--muted);margin-top:14px;max-width:42ch;font-size:1.1rem}
+.gate-copy p.hint{font-size:.95rem}
+.gate-box{display:grid;justify-items:center;gap:12px;min-height:200px;align-content:center}
+.gate-msg{color:var(--muted);text-align:center;max-width:40ch}
+.gate-msg:empty{display:none}
+.staff-user{display:flex;justify-content:flex-end;align-items:center;gap:12px;color:var(--muted);font-size:.92rem;margin-bottom:6px;min-height:40px}
+@media (max-width:860px){.gate-wrap{grid-template-columns:1fr;gap:26px}.staff-gate{min-height:0}}
 .tabs.dark .tab{border-color:var(--cream);color:var(--cream)}
 .tabs.dark .tab[aria-selected="true"]{background:var(--cream);color:var(--ink)}
 .staff-cal{display:grid;grid-template-columns:1.7fr 1fr;gap:24px;align-items:start;margin-top:22px}
@@ -694,8 +705,23 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
 
 <!-- ================= STAFF ================= -->
 <div class="page" data-page="staff">
-  <section class="band cellar"><div class="wrap">
-    <div class="sec-head"><div><h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Staff dashboard</h1><p>A preview of the owner's side. On the live site this page sits behind a secure staff sign-in, and every change saves for all visitors. In this preview, calendar and menu changes are saved in this browser only, and the rest resets when the page reloads.</p></div></div>
+  <section class="band cellar staff-gate" id="staffGate">
+    <div class="wrap gate-wrap">
+      <div class="gate-copy">
+        <img src="img/logo.png" alt="Shenanigan's Snug Irish Pub and Grill" class="gate-logo">
+        <h1>Staff sign-in</h1>
+        <p>Sign in with your staff account to update the menu, the events calendar and flyers.</p>
+        <p class="hint">Need an account? Ask the owner to send you an invite.</p>
+      </div>
+      <div class="gate-box">
+        <div id="clerkSignIn"></div>
+        <div class="gate-msg" id="gateMsg" aria-live="polite">Loading sign-in.</div>
+      </div>
+    </div>
+  </section>
+  <section class="band cellar" id="staffApp" hidden><div class="wrap">
+    <div class="staff-user"><span id="staffWho"></span><div id="clerkUser"></div></div>
+    <div class="sec-head"><div><h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Staff dashboard</h1><p>A preview of the owner's side. Calendar, menu and flyer changes are saved in this browser only for now, and the rest resets when the page reloads.</p></div></div>
     <div class="tabs dark" role="tablist" style="margin-bottom:22px"><button class="tab" type="button" role="tab" data-stab="overview" aria-selected="true">Overview</button><button class="tab" type="button" role="tab" data-stab="calendar" aria-selected="false">Calendar</button><button class="tab" type="button" role="tab" data-stab="menu" aria-selected="false">Menu</button></div>
     <div data-stabp="overview">
     <div class="stats">
@@ -855,12 +881,14 @@ const itemById = id => MENU.find(i=>i.id===id);
 /* ---------- Router ---------- */
 const PAGES = ['home','menu','order','order-preview','events','reservations','parties','about','gallery','contact','staff'];
 function route(){
-  const p = PAGES.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'home';
+  const h = location.hash.slice(1), clerkStep = h.startsWith('/');
+  const p = clerkStep ? 'staff' : (PAGES.includes(h) ? h : 'home');
+  if(p==='staff') staffGate();
   $$('.page').forEach(el=>el.classList.toggle('on', el.dataset.page===p));
   $$('#nav a').forEach(a=>a.classList.toggle('cur', a.getAttribute('href')==='#'+p));
   document.body.classList.toggle('ordering', p==='order-preview');
   $('#nav').classList.remove('open'); $('#burger').setAttribute('aria-expanded','false');
-  window.scrollTo(0,0);
+  if(!clerkStep) window.scrollTo(0,0);
   if(typeof chipState==='function') chipState();
 }
 window.addEventListener('hashchange', route);
@@ -1482,6 +1510,52 @@ $('#mForm').addEventListener('submit',e=>{ e.preventDefault();
 });
 $('#mReset').onclick=e=>{ if(!twoStep(e.currentTarget,'Tap again to reset the whole menu')) return; MENU=JSON.parse(SEED_MENU); nextItemId=Math.max(0,...MENU.map(i=>i.id))+1; cart.length=0; try{localStorage.removeItem(MENU_KEY);}catch(err){} fillMenuForm(null); menuChanged(); mSay('Menu reset to the original.'); };
 fillMenuForm(null); renderSoldOutUI(); renderMenuAdmin();
+
+/* ---------- Staff sign-in (Clerk) ---------- */
+/* Paste the Publishable Key from Clerk Dashboard > API keys. It starts with pk_test_ or pk_live_ and is safe to put in page code.
+   Never put the Secret Key (sk_...) in this file. Staff accounts are managed in the Clerk Dashboard (invite-only). */
+const CLERK_PUBLISHABLE_KEY = '';
+let clerkReady = null;
+function loadClerk(){
+  if(clerkReady) return clerkReady;
+  clerkReady = new Promise((resolve,reject)=>{
+    let domain='';
+    try{ domain = atob(CLERK_PUBLISHABLE_KEY.split('_')[2]).slice(0,-1); }catch(e){}
+    if(!domain) return reject(new Error('nokey'));
+    const add=(src,attrs={})=>new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=src; s.crossOrigin='anonymous'; s.async=true;
+      Object.entries(attrs).forEach(([k,v])=>s.setAttribute(k,v)); s.onload=res; s.onerror=()=>rej(new Error('load')); document.head.appendChild(s); });
+    add(`https://${domain}/npm/@clerk/ui@1/dist/ui.browser.js`)
+      .then(()=>add(`https://${domain}/npm/@clerk/clerk-js@6/dist/clerk.browser.js`,{'data-clerk-publishable-key':CLERK_PUBLISHABLE_KEY}))
+      .then(()=>window.Clerk.load({
+        ui:{ClerkUI:window.__internal_ClerkUICtor},
+        afterSignOutUrl:'/#home',
+        appearance:{variables:{colorPrimary:'#16261c',colorBackground:'#fffaf0',colorText:'#16261c',colorInputBackground:'#ffffff',fontFamily:'Figtree, system-ui, sans-serif',borderRadius:'12px'}}
+      }))
+      .then(()=>{ window.Clerk.addListener(()=>staffGate()); resolve(window.Clerk); })
+      .catch(reject);
+  });
+  clerkReady.catch(()=>{ clerkReady=null; });
+  return clerkReady;
+}
+let signInMounted=false, userMounted=false;
+function showStaff(on){ $('#staffApp').hidden=!on; $('#staffGate').hidden=on; }
+async function staffGate(){
+  const msg=$('#gateMsg');
+  if(!CLERK_PUBLISHABLE_KEY){ showStaff(false); msg.textContent='Staff sign-in is being connected. Check back soon.'; return; }
+  let clerk;
+  try{ clerk=await loadClerk(); }
+  catch(e){ showStaff(false); msg.textContent='Sign-in could not load. Check your internet connection and refresh the page.'; return; }
+  if(clerk.isSignedIn){
+    if(signInMounted){ clerk.unmountSignIn($('#clerkSignIn')); signInMounted=false; }
+    const u=clerk.user; $('#staffWho').textContent = u ? `Signed in as ${u.firstName || u.primaryEmailAddress?.emailAddress || 'staff'}` : '';
+    if(!userMounted){ clerk.mountUserButton($('#clerkUser')); userMounted=true; }
+    showStaff(true);
+  } else {
+    if(userMounted){ clerk.unmountUserButton($('#clerkUser')); userMounted=false; }
+    showStaff(false); msg.textContent='';
+    if(!signInMounted){ clerk.mountSignIn($('#clerkSignIn'),{routing:'hash',withSignUp:false,transferable:false,forceRedirectUrl:location.origin+location.pathname+'#staff'}); signInMounted=true; }
+  }
+}
 
 route();
 </script>

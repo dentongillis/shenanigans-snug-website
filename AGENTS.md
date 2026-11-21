@@ -67,7 +67,7 @@ Meta description, Open Graph tags, favicon, and Google Fonts (**Fraunces** for d
 | `#about` | Our story | Static copy and photos |
 | `#gallery` | Gallery | Photo grid (`#gal`) with lightbox |
 | `#contact` | Visit | Hours table, address placeholder, map placeholder, `#msgForm` |
-| `#staff` | Staff dashboard | Three tabs: Overview, Calendar, Menu (see below). **Not protected by any login** |
+| `#staff` | Staff dashboard | Clerk sign-in screen (`#staffGate`) until a staff member signs in, then the dashboard (`#staffApp`) with three tabs: Overview, Calendar, Menu |
 
 ### 5. `<script>` (one inline script, runs at the end of the body)
 
@@ -90,6 +90,7 @@ Sections, in order (search for these comments):
 | `/* ---------- Gallery ---------- */` | `GAL` list of photos and captions, lightbox |
 | `/* ---------- Staff dashboard ---------- */` | Overview counters and inbox (`renderDash`), announcement bar controls |
 | `/* ---------- Staff: menu editor and sold-out ---------- */` | Menu tab: list, search, add/edit/delete form, photo upload, sold-out toggles, "Sold out today" lists |
+| `/* ---------- Staff sign-in (Clerk) ---------- */` | `CLERK_PUBLISHABLE_KEY`, `loadClerk()` (loads Clerk's UI bundle and clerk-js v6 from the Clerk Frontend API domain derived from the key, only when someone opens `#staff`), `staffGate()` (shows the sign-in or the dashboard and mounts Clerk's SignIn or UserButton) |
 | `route();` | Last line: renders the page for the current hash |
 
 ## Data model
@@ -180,7 +181,8 @@ Look and feel: an Irish pub in the Arizona desert. Dark bottle-green "rooms" alt
 ## Known issues and limits
 
 - **Nothing is shared between visitors.** Staff edits only exist in the browser that made them. This is the main thing the next phase fixes.
-- **The staff dashboard has no login.** Anyone can open `#staff`; changes only affect their own browser.
+- **The staff login is a screen lock, not data protection.** Clerk hides the dashboard until a staff member signs in, but the site has no server, so the page code is public and staff changes still save only in that browser. Real protection comes with the backend.
+- **Clerk hash routes:** Clerk's sign-in steps use hashes starting `#/` (for example `#/factor-one`). `route()` keeps those on the staff page; don't add page names starting with `/`.
 - **Forms and checkout send nothing.** Each shows a "This is a preview" note.
 - **Example content:** hours, events, story text and contact details are placeholders until the owners confirm them. Photos belong to Mountain View Pub.
 - **README.md is out of date:** it says staff changes reset on reload, but menu, events and event types now persist per browser.
