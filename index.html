@@ -1514,7 +1514,7 @@ fillMenuForm(null); renderSoldOutUI(); renderMenuAdmin();
 /* ---------- Staff sign-in (Clerk) ---------- */
 /* Paste the Publishable Key from Clerk Dashboard > API keys. It starts with pk_test_ or pk_live_ and is safe to put in page code.
    Never put the Secret Key (sk_...) in this file. Staff accounts are managed in the Clerk Dashboard (invite-only). */
-const CLERK_PUBLISHABLE_KEY = '';
+const CLERK_PUBLISHABLE_KEY = 'pk_test_cG9ldGljLW1vY2Nhc2luLTkyMjAuY2xlcmsuYWNjb3VudHMuZGV2JA';
 let clerkReady = null;
 function loadClerk(){
   if(clerkReady) return clerkReady;
