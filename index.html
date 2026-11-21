@@ -311,7 +311,9 @@ section.band{padding-block:72px}
 .gate-copy h1{font-size:clamp(2.4rem,5vw,3.6rem)}
 .gate-copy p{color:var(--muted);margin-top:14px;max-width:42ch;font-size:1.1rem}
 .gate-copy p.hint{font-size:.95rem}
-.gate-box{display:grid;justify-items:center;gap:12px;min-height:200px;align-content:center}
+.gate-box{display:grid;justify-items:center;gap:12px;min-height:200px;align-content:center;color-scheme:light}
+.snug-clerk{width:100%;max-width:420px}
+.snug-clerk-card{width:100%!important;border-radius:20px!important;border:2px solid var(--ink)!important;box-shadow:0 0 0 6px rgba(240,169,59,.18),0 28px 60px rgba(0,0,0,.45)!important}
 .gate-msg{color:var(--muted);text-align:center;max-width:40ch}
 .gate-msg:empty{display:none}
 .staff-user{display:flex;justify-content:flex-end;align-items:center;gap:12px;color:var(--muted);font-size:.92rem;margin-bottom:6px;min-height:40px}
@@ -1529,7 +1531,19 @@ function loadClerk(){
       .then(()=>window.Clerk.load({
         ui:{ClerkUI:window.__internal_ClerkUICtor},
         afterSignOutUrl:'/#home',
-        appearance:{variables:{colorPrimary:'#16261c',colorBackground:'#fffaf0',colorText:'#16261c',colorInputBackground:'#ffffff',fontFamily:'Figtree, system-ui, sans-serif',borderRadius:'12px'}}
+        appearance:{
+          variables:{colorPrimary:'#16261c',colorPrimaryForeground:'#f7f0df',colorBackground:'#fffaf0',colorForeground:'#16261c',colorMutedForeground:'#4c5b50',
+            colorInput:'#ffffff',colorInputForeground:'#16261c',colorNeutral:'#16261c',colorBorder:'#d9cfb8',colorDanger:'#b3261e',
+            fontFamily:'Figtree, system-ui, sans-serif',fontFamilyButtons:'Figtree, system-ui, sans-serif',fontSize:'15px',borderRadius:'12px'},
+          elements:{
+            rootBox:'snug-clerk', cardBox:'snug-clerk-card',
+            headerTitle:{fontFamily:'Fraunces, Georgia, serif',fontWeight:800,fontSize:'1.6rem',letterSpacing:'-.01em'},
+            formButtonPrimary:{textTransform:'none',fontSize:'1rem',fontWeight:700,padding:'12px 16px',boxShadow:'none'},
+            formFieldInput:{padding:'12px 14px',fontSize:'1rem'},
+            socialButtonsBlockButton:{padding:'11px 14px'},
+            footerAction:{display:'none'}
+          }
+        }
       }))
       .then(()=>{ window.Clerk.addListener(()=>staffGate()); resolve(window.Clerk); })
       .catch(reject);
