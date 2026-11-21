@@ -316,7 +316,18 @@ section.band{padding-block:72px}
 .snug-clerk-card{width:100%!important;border-radius:20px!important;border:2px solid var(--ink)!important;box-shadow:0 0 0 6px rgba(240,169,59,.18),0 28px 60px rgba(0,0,0,.45)!important}
 .gate-msg{color:var(--muted);text-align:center;max-width:40ch}
 .gate-msg:empty{display:none}
-.staff-user{display:flex;justify-content:flex-end;align-items:center;gap:12px;color:var(--muted);font-size:.92rem;margin-bottom:6px;min-height:40px}
+.acct-bar{display:flex;align-items:center;gap:14px;padding:12px 14px 12px 12px;border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.05);max-width:100%}
+.acct-avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;flex:none;border:2px solid var(--paper)}
+.acct-initial{display:grid;place-items:center;background:var(--shamrock);color:#fff;font-weight:800;font-size:1.2rem}
+.acct-initial:empty{display:none}
+.acct-id{display:grid;line-height:1.25;min-width:0}
+.acct-id small{color:var(--muted);font-size:.78rem}
+.acct-id strong{font-size:1.02rem;color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct-id span{color:var(--muted);font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct-acts{display:flex;gap:8px;margin-left:6px}
+.acct-panel{color-scheme:light;display:grid;justify-items:center;margin-top:16px}
+#clerkProfile{width:100%;display:flex;justify-content:center}
+@media (max-width:760px){.acct-bar{width:100%;flex-wrap:wrap}.acct-acts{margin-left:0;width:100%}.acct-acts .btn{flex:1}}
 @media (max-width:860px){.gate-wrap{grid-template-columns:1fr;gap:26px}.staff-gate{min-height:0}}
 .tabs.dark .tab{border-color:var(--cream);color:var(--cream)}
 .tabs.dark .tab[aria-selected="true"]{background:var(--cream);color:var(--ink)}
@@ -722,9 +733,13 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
     </div>
   </section>
   <section class="band cellar" id="staffApp" hidden><div class="wrap">
-    <div class="staff-user"><span id="staffWho"></span><div id="clerkUser"></div></div>
-    <div class="sec-head"><div><h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Staff dashboard</h1><p>A preview of the owner's side. Calendar, menu and flyer changes are saved in this browser only for now, and the rest resets when the page reloads.</p></div></div>
-    <div class="tabs dark" role="tablist" style="margin-bottom:22px"><button class="tab" type="button" role="tab" data-stab="overview" aria-selected="true">Overview</button><button class="tab" type="button" role="tab" data-stab="calendar" aria-selected="false">Calendar</button><button class="tab" type="button" role="tab" data-stab="menu" aria-selected="false">Menu</button></div>
+    <div class="sec-head"><div><h1 style="font-size:clamp(2.2rem,5vw,3.4rem)">Staff dashboard</h1><p>A preview of the owner's side. Calendar, menu and flyer changes are saved in this browser only for now, and the rest resets when the page reloads.</p></div>
+      <div class="acct-bar" id="acctBar">
+        <img class="acct-avatar" id="acctAvatar" alt="" hidden><span class="acct-avatar acct-initial" id="acctInitial" aria-hidden="true"></span>
+        <div class="acct-id"><small>Signed in as</small><strong id="acctName"></strong><span id="acctEmail"></span></div>
+        <div class="acct-acts"><button class="btn btn-ghost btn-sm" type="button" id="acctOpen">Account</button><button class="btn btn-ghost btn-sm" type="button" id="acctOut">Sign out</button></div>
+      </div></div>
+    <div class="tabs dark" role="tablist" style="margin-bottom:22px"><button class="tab" type="button" role="tab" data-stab="overview" aria-selected="true">Overview</button><button class="tab" type="button" role="tab" data-stab="calendar" aria-selected="false">Calendar</button><button class="tab" type="button" role="tab" data-stab="menu" aria-selected="false">Menu</button><button class="tab" type="button" role="tab" data-stab="account" aria-selected="false">Account</button></div>
     <div data-stabp="overview">
     <div class="stats">
       <div class="stat"><b id="sOrders">0</b>Online orders today</div>
@@ -741,6 +756,10 @@ body.ordering .mobilebar [data-vieworder]{display:inline-flex}
         <ul class="dayevs" id="soList"></ul></div>
     </div>
     <div class="ok" id="admOk" hidden style="max-width:520px"></div>
+    </div>
+    <div data-stabp="account" hidden>
+      <p class="hint" style="max-width:62ch">Change your name, photo, email or password. Under <strong>Security</strong> you can update your password and sign out of other devices.</p>
+      <div class="acct-panel"><div id="clerkProfile"></div><div class="gate-msg" id="profileMsg"></div></div>
     </div>
     <div data-stabp="menu" hidden>
       <p class="hint" style="max-width:62ch">Add, edit or delete dishes, change prices and photos, and mark anything sold out. The Menu page updates straight away.</p>
@@ -1551,8 +1570,20 @@ function loadClerk(){
   clerkReady.catch(()=>{ clerkReady=null; });
   return clerkReady;
 }
-let signInMounted=false, userMounted=false;
+let signInMounted=false, profileMounted=false;
+const STAFF_INTENT='snug-staff-intent';
+const setIntent=on=>{ try{ on?sessionStorage.setItem(STAFF_INTENT,'1'):sessionStorage.removeItem(STAFF_INTENT); }catch(e){} };
+const hasIntent=()=>{ try{ return sessionStorage.getItem(STAFF_INTENT)==='1'; }catch(e){ return false; } };
 function showStaff(on){ $('#staffApp').hidden=!on; $('#staffGate').hidden=on; }
+function fillAccount(u){
+  const name=(u&&(u.fullName||u.firstName||u.username))||'Staff member', email=(u&&u.primaryEmailAddress&&u.primaryEmailAddress.emailAddress)||'';
+  $('#acctName').textContent=name; $('#acctEmail').textContent=email; $('#acctEmail').hidden=!email || email===name;
+  const img=$('#acctAvatar'), ini=$('#acctInitial'), hasImg=u&&u.hasImage&&u.imageUrl;
+  img.hidden=!hasImg; if(hasImg) img.src=u.imageUrl;
+  ini.textContent=hasImg?'':(name||email||'S').trim().charAt(0).toUpperCase();
+}
+const CLERK_LOOK={variables:{colorPrimary:'#16261c',colorPrimaryForeground:'#f7f0df',colorBackground:'#fffaf0',colorForeground:'#16261c',colorMutedForeground:'#4c5b50',
+  colorInput:'#ffffff',colorInputForeground:'#16261c',colorNeutral:'#16261c',colorBorder:'#d9cfb8',colorDanger:'#b3261e',fontFamily:'Figtree, system-ui, sans-serif',fontSize:'15px',borderRadius:'12px'}};
 async function staffGate(){
   const msg=$('#gateMsg');
   if(!CLERK_PUBLISHABLE_KEY){ showStaff(false); msg.textContent='Staff sign-in is being connected. Check back soon.'; return; }
@@ -1561,15 +1592,31 @@ async function staffGate(){
   catch(e){ showStaff(false); msg.textContent='Sign-in could not load. Check your internet connection and refresh the page.'; return; }
   if(clerk.isSignedIn){
     if(signInMounted){ clerk.unmountSignIn($('#clerkSignIn')); signInMounted=false; }
-    const u=clerk.user; $('#staffWho').textContent = u ? `Signed in as ${u.firstName || u.primaryEmailAddress?.emailAddress || 'staff'}` : '';
-    if(!userMounted){ clerk.mountUserButton($('#clerkUser')); userMounted=true; }
-    showStaff(true);
+    fillAccount(clerk.user); showStaff(true);
+    if(hasIntent()){ setIntent(false); if(location.hash!=='#staff' && !location.hash.startsWith('#/')) location.hash='staff'; }
   } else {
-    if(userMounted){ clerk.unmountUserButton($('#clerkUser')); userMounted=false; }
+    if(profileMounted){ clerk.unmountUserProfile($('#clerkProfile')); profileMounted=false; }
     showStaff(false); msg.textContent='';
-    if(!signInMounted){ clerk.mountSignIn($('#clerkSignIn'),{routing:'hash',withSignUp:false,transferable:false,forceRedirectUrl:location.origin+location.pathname+'#staff'}); signInMounted=true; }
+    setIntent(document.querySelector('[data-page="staff"]').classList.contains('on') || location.hash.startsWith('#/'));
+    if(!signInMounted){ clerk.mountSignIn($('#clerkSignIn'),{routing:'hash',withSignUp:false,transferable:false,
+      forceRedirectUrl:location.origin+location.pathname+'#staff',fallbackRedirectUrl:location.origin+location.pathname+'#staff'}); signInMounted=true; }
   }
 }
+function openAccount(){
+  document.querySelector('[data-stab="account"]').click();
+}
+async function mountProfile(){
+  if(profileMounted) return;
+  try{ const clerk=await loadClerk(); if(!clerk.isSignedIn) return;
+    clerk.mountUserProfile($('#clerkProfile'),{routing:'hash',appearance:{...CLERK_LOOK,elements:{rootBox:{width:'100%',maxWidth:'960px'},cardBox:{width:'100%',maxWidth:'960px',borderRadius:'20px',border:'2px solid #16261c',boxShadow:'0 24px 50px rgba(0,0,0,.4)'}}}});
+    profileMounted=true; $('#profileMsg').textContent='';
+  }catch(e){ $('#profileMsg').textContent='Account settings could not load. Refresh the page and try again.'; }
+}
+$('#acctOpen').onclick=openAccount;
+$('#acctOut').onclick=async()=>{ const b=$('#acctOut'); b.disabled=true; b.textContent='Signing out';
+  try{ const clerk=await loadClerk(); await clerk.signOut({redirectUrl:location.origin+location.pathname+'#home'}); }catch(e){ b.disabled=false; b.textContent='Sign out'; } };
+document.addEventListener('click',e=>{ const b=e.target.closest('[data-stab="account"]'); if(b) mountProfile(); });
+if(hasIntent() && CLERK_PUBLISHABLE_KEY) staffGate();
 
 route();
 </script>

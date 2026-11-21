@@ -67,7 +67,7 @@ Meta description, Open Graph tags, favicon, and Google Fonts (**Fraunces** for d
 | `#about` | Our story | Static copy and photos |
 | `#gallery` | Gallery | Photo grid (`#gal`) with lightbox |
 | `#contact` | Visit | Hours table, address placeholder, map placeholder, `#msgForm` |
-| `#staff` | Staff dashboard | Clerk sign-in screen (`#staffGate`) until a staff member signs in, then the dashboard (`#staffApp`) with three tabs: Overview, Calendar, Menu |
+| `#staff` | Staff dashboard | Clerk sign-in screen (`#staffGate`) until a staff member signs in, then the dashboard (`#staffApp`) with four tabs: Overview, Calendar, Menu, Account |
 
 ### 5. `<script>` (one inline script, runs at the end of the body)
 
@@ -90,7 +90,7 @@ Sections, in order (search for these comments):
 | `/* ---------- Gallery ---------- */` | `GAL` list of photos and captions, lightbox |
 | `/* ---------- Staff dashboard ---------- */` | Overview counters and inbox (`renderDash`), announcement bar controls |
 | `/* ---------- Staff: menu editor and sold-out ---------- */` | Menu tab: list, search, add/edit/delete form, photo upload, sold-out toggles, "Sold out today" lists |
-| `/* ---------- Staff sign-in (Clerk) ---------- */` | `CLERK_PUBLISHABLE_KEY`, `loadClerk()` (loads Clerk's UI bundle and clerk-js v6 from the Clerk Frontend API domain derived from the key, only when someone opens `#staff`), `staffGate()` (shows the sign-in or the dashboard and mounts Clerk's SignIn or UserButton) |
+| `/* ---------- Staff sign-in (Clerk) ---------- */` | `CLERK_PUBLISHABLE_KEY`, `loadClerk()` (loads Clerk's UI bundle and clerk-js v6 from the Clerk Frontend API domain derived from the key, only when someone opens `#staff`), `staffGate()` (shows the sign-in or the dashboard; fills the account bar `#acctBar`), `mountProfile()` (Clerk UserProfile in the Account tab, for name, email and password), sign-out button. A sessionStorage flag `snug-staff-intent` returns staff to `#staff` after sign-in even if Clerk redirects elsewhere |
 | `route();` | Last line: renders the page for the current hash |
 
 ## Data model
